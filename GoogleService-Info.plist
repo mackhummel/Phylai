@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>189643345788-38l07b2jvp08ttrmcqkooavreg4vtmql.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.189643345788-38l07b2jvp08ttrmcqkooavreg4vtmql</string>
+	<key>API_KEY</key>
+	<string>AIzaSyC9M9vxmCjlX-2im9Q1FZC-uIuL0mlRbAM</string>
+	<key>GCM_SENDER_ID</key>
+	<string>189643345788</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.phylai.phylai</string>
+	<key>PROJECT_ID</key>
+	<string>phylai</string>
+	<key>STORAGE_BUCKET</key>
+	<string>phylai.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:189643345788:ios:5d5179cbb045b9dee81ef9</string>
+</dict>
+</plist>
