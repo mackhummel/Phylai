@@ -22,6 +22,7 @@ Install Expo Go app on phone
 
 ## Quickstart
 `expo start`
+
 Scan QR Code with Expo Go app (Android) or Camera app (iOS) to view mobile dev-server
 
 
