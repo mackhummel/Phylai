@@ -3,6 +3,7 @@ CIS4914
 
 
 ## Initial Setup
+### Install Node 16.13.2
 ### Install Packages:
 `npm install`
 
