@@ -1,34 +1,56 @@
-import { StyleSheet, Button } from 'react-native';
+import { StyleSheet, Button, Text, View } from 'react-native';
 import { collection, addDoc } from 'firebase/firestore';
-import EditScreenInfo from '../components/EditScreenInfo';
-import { Text, View } from '../components/Themed';
 import { RootTabScreenProps } from '../types';
-import {db} from '../config/firebase';
+import {db, auth} from '../config/firebase';
+import { getAuth, onAuthStateChanged, signOut , User, reload} from "firebase/auth";
+import React from 'react';
+
 export default function TabOneScreen({ navigation }: RootTabScreenProps<'TabOne'>) {
+  const [loading, setLoadingChange] = React.useState(true);
+  const [user, setUser] = React.useState<any>();
+  onAuthStateChanged(auth, (user:any) => {
+    setUser(user);
+    if(loading) setLoadingChange(false);
+  });
+  if(loading){
+    return (
+      <View>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
   return (
     <View style={styles.container}>
+      <Text>Hello {user.displayName}</Text><br/>
       <Button
-        title="Press me"
+        title="Add to DB"
         onPress={() => dbCall()}
-      />
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <EditScreenInfo path="/screens/TabOneScreen.tsx" />
+      /> <br/>
+      <Button title = "Logout" onPress={()=>SignOut()}/>
+      
     </View>
   );
 }
 
 async function dbCall() {
   try {
-    const docRef = await addDoc(collection(db, "users"), {
-      first: "Ada",
-      last: "Lovelace",
-      born: 1815
+    const docRef = await addDoc(collection(db, "messages"), {
+      From: "Jane",
+      To: "John",
+      Message: "Hello John!"
     });
     console.log("Document written with ID: ", docRef.id);
   } catch (e) {
     console.error("Error adding document: ", e);
   }
   
+}
+async function SignOut(){
+  signOut(auth).then(()=>{
+    console.log("Logout Successful")
+  }).catch((error)=>{
+    console.log("Logout error: ", error);
+  })
 }
 const styles = StyleSheet.create({
   container: {

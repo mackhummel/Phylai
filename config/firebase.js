@@ -1,6 +1,8 @@
 import {initializeApp} from 'firebase/app';
 import Constants from 'expo-constants';
 import {getFirestore} from 'firebase/firestore';
+import { getAuth } from "firebase/auth";
+
 // Initialize Firebase
 const firebaseConfig = {
   apiKey: Constants.manifest.extra.apiKey,
@@ -13,5 +15,5 @@ const firebaseConfig = {
 
 const Firebase = initializeApp(firebaseConfig)
 const db = getFirestore(Firebase);
-
-export {Firebase, db};
+const auth = getAuth(Firebase);
+export {Firebase, db, auth};
