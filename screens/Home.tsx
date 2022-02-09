@@ -1,15 +1,14 @@
-import { StyleSheet, View } from 'react-native';
-import { collection, addDoc, serverTimestamp, doc, setDoc, query, where, getDocs, QuerySnapshot, DocumentData, Timestamp, FieldValue, DocumentReference, DocumentSnapshot } from 'firebase/firestore';
-import { RootTabScreenProps } from '../types';
-import { getAuth, onAuthStateChanged, signOut, User, reload } from "firebase/auth";
-import React, { useEffect, useState } from 'react';
-import * as ImagePicker from 'expo-image-picker';
+import { Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { collection, addDoc, serverTimestamp,  query,  getDocs, QuerySnapshot, DocumentData, Timestamp,  orderBy} from 'firebase/firestore';
+import { getAuth, signOut } from "firebase/auth";
+import React, {  useState } from 'react';
 import { getStorage, ref, uploadBytes, uploadBytesResumable } from '@firebase/storage';
 import { getDownloadURL } from 'firebase/storage';
 import { v4 as uuidv4 } from 'uuid';
 import { Button, Input, Image, Text } from 'react-native-elements';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { auth, db } from '../config/firebase';
+import ImagePicker from 'react-native-image-picker';
 
 // class Message {
 //   timestamp: FieldValue;
@@ -31,11 +30,10 @@ const Home = (props: any) => {
   const user = auth.currentUser;
   const [message, setMessage] = useState("");
   const [chat, setChat] = useState<QuerySnapshot<DocumentData>>();
-  const [load, setLoad] = useState(true);
+  const [filePath, setFilePath] = useState<any>(null);
+  const [transferred, setTransferred] = useState(0);
 
-  const loading = () => {
-    setLoad(false);
-  }
+ 
 
   const signOutUser = () => {
     signOut(auth).then(() => {
@@ -63,55 +61,63 @@ const Home = (props: any) => {
   }
 
   const getMessages = async () => {
-    const q = query(collection(db,"message"), where("groupID", "==", 1));
-    await getDocs(q).then((res)=>{
+    const q = query(collection(db, "message"), orderBy('timestamp','desc') );
+    await getDocs(q).then((res) => {
       setChat(res);
       console.log("Got messages successfully");
     }).catch((error) => console.log("Message failed: " + error.message));
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Hello {user?.displayName}</Text>
-      <Button onPress={signOutUser} title="Sign Out" />
-      <View style={styles.inputContainer}>
-        <Input
-          placeholder='Message'
-          value={message}
-          onChangeText={(text) => setMessage(text)}
-        />
-      </View>
-      {chat === undefined ? null: chat.docs.map( doc => {
-          return(
-            <View style={styles.list}>
-              <Text>
-                From: {doc.data().username}
-              </Text>
-              <Text>{"\n"}</Text>
-              <View style={{ alignItems:'center', display:'flex', marginBottom:4 }}>
-                <Text style={{textAlign:'center'}}>
-                 {doc.data().text}
-                </Text>
-              </View>
-            </View>
-          );
-        })
-      }
-      <Button 
-        onPress={() => sendMessage()} 
-        title="Send Message" 
-        buttonStyle={{backgroundColor: 'rgba(111, 202, 186, 1)'}}
+    <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}>
+      <SafeAreaView >
+        <View style={styles.container}>
         
-      />
-      <Button 
-        onPress={() => getMessages()} 
-        title="Get Messages" 
-        buttonStyle={{backgroundColor: 'rgba(247, 181, 0, 1)'}}
-        containerStyle={{padding:10}}
-      />
-      
-
-    </SafeAreaView>
+            <Text style={styles.title}>Hello {user?.displayName}</Text>
+            <Button onPress={signOutUser} title="Sign Out" />
+            <View style={styles.inputContainer}>
+              <Input
+                placeholder='Message'
+                value={message}
+                onChangeText={(text) => setMessage(text)}
+              />
+            </View>
+            
+            <Button
+              onPress={() => sendMessage()}
+              title="Send Message"
+              buttonStyle={{ backgroundColor: 'rgba(111, 202, 186, 1)' }}
+            />
+            <Button
+              onPress={() => getMessages()}
+              title="Get Messages"
+              buttonStyle={{ backgroundColor: 'rgba(247, 181, 0, 1)' }}
+              
+            />
+            <Text style={{ marginTop:10,textDecorationLine:'underline', fontSize:20, fontStyle:'italic'}}>Message Board</Text>
+            {chat === undefined ? null : chat.docs.map(doc => {
+              return (
+                <View style={styles.list} key={doc.id}>
+                  <Text>
+                    From: {doc.data().username}
+                  </Text>
+                  <Text>{"\n"}</Text>
+                  <View style={{ alignItems: 'center', display: 'flex', marginBottom: 4 }}>
+                    <Text style={{ textAlign: 'center' }}>
+                      {doc.data().text}
+                    </Text>
+                  </View>
+                  <Text>{"\n"}</Text>
+                  <Text>
+                    {(doc.data().timestamp as Timestamp).toDate().toString()}
+                  </Text>
+                </View>
+              );
+            })
+            }
+        </View>
+      </SafeAreaView>
+    </ScrollView>
   )
 }
 const styles = StyleSheet.create({
@@ -120,12 +126,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  list:{
-    borderColor:"black",
+  list: {
+    borderColor: "black",
     borderWidth: 2,
-    width:'40%',
-    margin:10,
-    padding:5
+    width: Platform.OS === 'ios' ? "80%":"40%",
+    margin: 10,
+    padding: 5
   },
   title: {
     fontSize: 27,
@@ -133,55 +139,16 @@ const styles = StyleSheet.create({
     paddingBottom: 60
   },
   inputContainer: {
-    padding: "20px",
-    width: "40%",
+    marginTop:10,
+    width: Platform.OS === 'ios' ? "80%":"40%",
   },
 });
 export default Home;
-// export default function Home({ navigation }: RootTabScreenProps<'TabOne'>) {
-//   const [loading, setLoadingChange] = React.useState(true);
-//   const [user, setUser] = React.useState<any>();
-//   const [image, setImage] = React.useState<any>();
-//   const pickImage = async () => {
-//     // No permissions request is necessary for launching the image library
-//     let result = await ImagePicker.launchImageLibraryAsync({
-//       mediaTypes: ImagePicker.MediaTypeOptions.All,
-//       allowsEditing: true,
-//       aspect: [4, 3],
-//       quality: 1,
-//     });
 
-//     console.log(result);
 
-//     if (!result.cancelled) {
-//       setImage(result.uri);
-//     }
-//   };
-//   onAuthStateChanged(auth, (user:any) => {
-//     setUser(user);
-//     if(loading) setLoadingChange(false);
-//   });
-
-//   if(loading){
-//     return (
-//       <View>
-//         <Text>Loading...</Text>
-//       </View>
-//     );
-//   }
-//   return (
-// <View style={styles.container}>
-//   <Text>Hello {user.displayName}</Text>
-//   <Pressable style={styles.button} onPress={() => dbCall()}><Text style={styles.text}>Add to DB</Text></Pressable>
-
-//   <Pressable style={styles.button} onPress={()=>SignOut()}><Text style={styles.text}>Sign Out</Text></Pressable>
-//   <Pressable  style={styles.button} onPress={pickImage}><Text style={styles.text}>Select Image</Text></Pressable>
-//   <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />
-//   {image? <Pressable  style={styles.button} onPress={()=>UploadImage(image)}><Text style={styles.text}>Upload Image</Text></Pressable>:null}
-// </View>
-//   );
-// }
-
+function setResponse(options: any, setResponse: any) {
+  throw new Error('Function not implemented.');
+}
 // async function UploadImage(uri: any) {
 //   const blob = await new Promise<any>((resolve, reject) => {
 //     const xhr = new XMLHttpRequest();
@@ -202,26 +169,5 @@ export default Home;
 
 //   // We're done with the blob, close and release it
 
-// }
-// async function dbCall() {
-//   try {
-//     const docRef = await addDoc(collection(db, "messages"), {
-//       From: "Jane",
-//       To: "John",
-//       Message: "Hello John!"
-//     });
-//     console.log("Document written with ID: ", docRef.id);
-//   } catch (e) {
-//     console.error("Error adding document: ", e);
-//   }
-
-// }
-
-// async function SignOut(){
-//   signOut(auth).then(()=>{
-//     console.log("Logout Successful")
-//   }).catch((error)=>{
-//     console.log("Logout error: ", error);
-//   })
 // }
 

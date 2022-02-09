@@ -1,83 +1,138 @@
 import { StatusBar } from 'expo-status-bar';
-import { Platform, StyleSheet, TextInput, Button, View, Text, Dimensions } from 'react-native';
-import { auth, db } from '../config/firebase';
+import { Platform, StyleSheet, TextInput, View, Text, Dimensions, ActivityIndicator } from 'react-native';
 //import { View, Text } from '../components/Themed';
-import React, {Component} from "react";
-import { createUserWithEmailAndPassword, updateCurrentUser, updateProfile, User } from '@firebase/auth';
+import React, { Component, useEffect, useState } from "react";
+import { Button, Input, Image, } from 'react-native-elements';
 
-class SignUp extends Component<any, any>{
-    constructor(props: any){
-        super(props);
-        this.state = {
-            email: '',
-            password: '',
-            name: '',
-        }
-    }
-    onEmailChange = (val: any) =>{
-        this.setState({email: val})
-    }
-    onPasswordChange = (val: any) =>{
-        this.setState({password: val})
-    }
-    onNameChange = (val: any) =>{
-        this.setState({name: val})
-    }
-    signUp = async () =>{
-         createUserWithEmailAndPassword(auth, this.state.email, this.state.password)
-            .then(async (res)=>{
-                return await updateProfile(auth.currentUser as User, {
-                    displayName: this.state.name
-                }).then(()=>{
-                    console.log("updated name")
-                });
-                
-            })
-            .catch((error)=>{
-                console.log("error")
-            })
-    }
-    render(){
-        return (
-            <View style={styles.container}>
-              <View  />
-              <Text >Name:</Text>
-              <TextInput style={styles.input} value={this.state.name} onChangeText={this.onNameChange}></TextInput>
-              <Text >Email:</Text>
-              <TextInput style={styles.input} value={this.state.email} onChangeText={this.onEmailChange}></TextInput>
-              <Text >Password:</Text>
-              <TextInput style={styles.input} value={this.state.password} onChangeText={this.onPasswordChange} secureTextEntry={true}></TextInput>
-              <Button title={"Sign Up"} onPress={this.signUp}></Button>
-              <Text>{"\n"}</Text>
-              <Button title="Sign In" onPress={()=>this.props.navigation.navigate("SignIn")}></Button>
-              <StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'} />
-            </View>
-          )
-    }
+import { createUserWithEmailAndPassword, getAuth, onAuthStateChanged, signInWithEmailAndPassword, updateProfile, User } from '@firebase/auth';
+import { db } from '../config/firebase';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+
+const logo = require('../assets/Phylai.png');
+
+
+const SignUp = (props: any) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  //const [loading, setLoading] = useState(true);
+  const auth = getAuth();
+
+  const createAccount = async () => {
+    await createUserWithEmailAndPassword(auth, email, password)
+      .then(async (authUser) => {
+        console.log("Created Account Successfully");
+        await updateProfile(authUser.user, {
+          displayName: username,
+        }).then(async () => {
+          console.log("Updated Account Successfully");
+          await addDoc(collection(db, "user"), {
+            uid: authUser.user.uid,
+            firstName: firstName,
+            lastName: lastName,
+            username: username,
+            email: email,
+            siteAdmin: true,
+            groups: []
+          }).then(() => {
+            console.log("Added user to DB successfully");
+            props.navigation.replace('Login');
+          })
+            .catch((error) => console.log("Error adding to DB: " + error.message))
+        }).catch((error) => console.log("Error updating user: " + error.message))
+      }).catch((error) => {
+        console.log("Login Error: " + error.message);
+      })
+  }
+  const login = () => {
+    props.navigation.replace('Login');
+  }
+
+  // if (loading) {
+  //   return (<View style={styles.loading}>
+  //     <ActivityIndicator color={"#2044E0"} size="large" />
+  //   </View>)
+  // }
+  return (
+    <View style={styles.container}>
+      <Image source={logo} style={styles.image} />
+      <View style={styles.inputContainer}>
+        <Input
+          placeholder='First Name'
+          value={firstName}
+          textContentType='name'
+          onChangeText={(text) => setFirstName(text)}
+        />
+        <Input
+          placeholder='Last Name'
+          value={lastName}
+          textContentType='name'
+          onChangeText={(text) => setLastName(text)}
+          
+        />
+        <Input
+          placeholder='Username'
+          value={username}
+          textContentType='username'
+          onChangeText={(text) => setUsername(text)}
+        />
+        <Input
+          placeholder='Email'
+          autoFocus
+          value={email}
+          textContentType='emailAddress'
+          onChangeText={(text) => setEmail(text)}
+        />
+        <Input
+          placeholder='Password'
+          secureTextEntry
+          value={password}
+          textContentType='password'
+          onChangeText={(text) => setPassword(text)}
+          onSubmitEditing={() => createAccount()}
+        />
+        
+
+      </View>
+      <Button
+        onPress={() => createAccount()}
+        title='Create Account'
+        buttonStyle={{ backgroundColor: 'green' }}
+      />
+      <Button
+        onPress={login}
+        title='Back to Login'
+
+      />
+      <StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'} />
+    </View>
+  )
 }
-
 const styles = StyleSheet.create({
+  image: {
+    width: 200,
+    height: 200,
+  },
   container: {
     flex: 1,
+    width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
+
   },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
+  inputContainer: {
+    padding: 20,
+    width: Platform.OS === 'ios' ? "80%" : "40%",
   },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
-  },
-  input: {
-    height: 40,
-    width: Platform.OS === 'ios' ? Dimensions.get('screen').width/2 : Dimensions.get('window').width/5,
-    margin: 12,
-    borderWidth: 1,
-    padding: 10,
-  },
-  
+  loading: {
+    flex: 1,
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  }
+
+
 })
 export default SignUp;

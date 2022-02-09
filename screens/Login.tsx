@@ -32,9 +32,13 @@ const Login = (props: any) => {
         console.log("Login Error: " + error.message);
       })
   }
-  if(loading){
-    return(<View style={styles.loading}>
-      <ActivityIndicator color={"#2044E0"} size="large"/>
+  const signUp = () =>{
+    props.navigation.replace('SignUp');
+  }
+
+  if (loading) {
+    return (<View style={styles.loading}>
+      <ActivityIndicator color={"#2044E0"} size="large" />
     </View>)
   }
   return (
@@ -42,7 +46,7 @@ const Login = (props: any) => {
       <Image source={logo} style={styles.image} />
       <View style={styles.inputContainer}>
         <Input
-        
+
           placeholder='Email'
           autoFocus
           value={email}
@@ -62,6 +66,12 @@ const Login = (props: any) => {
         onPress={signIn}
         title='Sign In'
       />
+      <Button
+        onPress={signUp}
+        title='Create Account'
+        buttonStyle={{ backgroundColor: 'green' }}
+      />
+      
       <StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'} />
     </View>
   )
@@ -76,13 +86,13 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    
+
   },
   inputContainer: {
-    padding:"20px",
-    width: "40%",
+    padding: 20,
+    width: Platform.OS === 'ios' ? "80%":"40%",
   },
-  loading:{
+  loading: {
     flex: 1,
     width: '100%',
     alignItems: 'center',
@@ -92,45 +102,3 @@ const styles = StyleSheet.create({
 
 })
 export default Login;
-// class Login extends Component<any, any>{
-//     constructor(props: any){
-//         super(props);
-//         this.state = {
-//             email: '',
-//             password: '',
-//         }
-//     }
-//     onEmailChange = (val: any) =>{
-//         this.setState({email: val})
-//     }
-//     onPasswordChange = (val: any) =>{
-//         this.setState({password: val})
-//     }
-
-//     signIn = () =>{
-//         signInWithEmailAndPassword(auth, this.state.email, this.state.password)
-//             .then((res)=>{
-//             })
-//             .catch((error)=>{
-//                 console.log("error")
-//             })
-//     }
-//     render(){
-//         return (
-//             <View style={styles.container}>
-//               <View  />
-//               <Text >Email:</Text>
-//               <TextInput style={styles.input} value={this.state.email} onChangeText={this.onEmailChange}></TextInput>
-//               <Text >Password:</Text>
-//               <TextInput style={styles.input} value={this.state.password} onChangeText={this.onPasswordChange} secureTextEntry={true}></TextInput>
-//               <Button title={"Sign In"} onPress={this.signIn}></Button>
-//               <Text>{"\n"}</Text>
-//               <Button title="Sign Up" onPress={()=>this.props.navigation.navigate("SignUp")}></Button>
-//               <StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'} />
-//             </View>
-//           )
-//     }
-// }
-
-
-
