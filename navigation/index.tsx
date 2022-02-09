@@ -16,12 +16,13 @@ import useColorScheme from '../hooks/useColorScheme';
 import ModalScreen from '../screens/ModalScreen';
 import NotFoundScreen from '../screens/NotFoundScreen';
 import SignUp from '../screens/SignUp';
-import TabOneScreen from '../screens/TabOneScreen';
-import SignIn from '../screens/SignIn';
+import TabOneScreen from '../screens/Home';
+import SignIn from '../screens/Login';
 import TabTwoScreen from '../screens/TabTwoScreen';
 import { RootStackParamList, RootTabParamList, RootTabScreenProps } from '../types';
 import LinkingConfiguration from './LinkingConfiguration';
 import { auth } from '../config/firebase';
+import 'react-native-get-random-values';
 
 const Stack = createNativeStackNavigator();
 // class Navigation extends React.Component<any, any>{

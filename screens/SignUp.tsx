@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { Platform, StyleSheet, TextInput, Button, View, Text } from 'react-native';
+import { Platform, StyleSheet, TextInput, Button, View, Text, Dimensions } from 'react-native';
 import { auth, db } from '../config/firebase';
 //import { View, Text } from '../components/Themed';
 import React, {Component} from "react";
@@ -41,13 +41,14 @@ class SignUp extends Component<any, any>{
         return (
             <View style={styles.container}>
               <View  />
-              <Text >Name:</Text><br/>
-              <TextInput style={styles.input} value={this.state.name} onChangeText={this.onNameChange}></TextInput><br/>
-              <Text >Email:</Text><br/>
-              <TextInput style={styles.input} value={this.state.email} onChangeText={this.onEmailChange}></TextInput><br/>
-              <Text >Password:</Text><br/>
-              <TextInput style={styles.input} value={this.state.password} onChangeText={this.onPasswordChange} secureTextEntry={true}></TextInput><br/>
-              <Button title={"Sign Up"} onPress={this.signUp}></Button><br/>
+              <Text >Name:</Text>
+              <TextInput style={styles.input} value={this.state.name} onChangeText={this.onNameChange}></TextInput>
+              <Text >Email:</Text>
+              <TextInput style={styles.input} value={this.state.email} onChangeText={this.onEmailChange}></TextInput>
+              <Text >Password:</Text>
+              <TextInput style={styles.input} value={this.state.password} onChangeText={this.onPasswordChange} secureTextEntry={true}></TextInput>
+              <Button title={"Sign Up"} onPress={this.signUp}></Button>
+              <Text>{"\n"}</Text>
               <Button title="Sign In" onPress={()=>this.props.navigation.navigate("SignIn")}></Button>
               <StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'} />
             </View>
@@ -72,6 +73,7 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 40,
+    width: Platform.OS === 'ios' ? Dimensions.get('screen').width/2 : Dimensions.get('window').width/5,
     margin: 12,
     borderWidth: 1,
     padding: 10,
