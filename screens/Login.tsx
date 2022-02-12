@@ -45,7 +45,6 @@ const Login = (props: any) => {
       <Image source={logo} style={styles.image} />
       <View style={styles.inputContainer}>
         <Input
-
           placeholder='Email'
           autoFocus
           value={email}
