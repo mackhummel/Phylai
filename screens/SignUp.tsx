@@ -1,12 +1,11 @@
 import { StatusBar } from 'expo-status-bar';
-import { Platform, StyleSheet, TextInput, View, Text, Dimensions, ActivityIndicator } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 //import { View, Text } from '../components/Themed';
-import React, { Component, useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Button, Input, Image, } from 'react-native-elements';
-
-import { createUserWithEmailAndPassword, getAuth, onAuthStateChanged, signInWithEmailAndPassword, updateProfile, User } from '@firebase/auth';
+import { createUserWithEmailAndPassword, getAuth, updateProfile } from '@firebase/auth';
 import { db } from '../config/firebase';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { addDoc, collection } from 'firebase/firestore';
 
 const logo = require('../assets/Phylai.png');
 
@@ -17,7 +16,6 @@ const SignUp = (props: any) => {
   const [username, setUsername] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  //const [loading, setLoading] = useState(true);
   const auth = getAuth();
 
   const createAccount = async () => {
@@ -49,12 +47,6 @@ const SignUp = (props: any) => {
   const login = () => {
     props.navigation.replace('Login');
   }
-
-  // if (loading) {
-  //   return (<View style={styles.loading}>
-  //     <ActivityIndicator color={"#2044E0"} size="large" />
-  //   </View>)
-  // }
   return (
     <View style={styles.container}>
       <Image source={logo} style={styles.image} />
