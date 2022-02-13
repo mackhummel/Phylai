@@ -22,15 +22,17 @@ const AddGroup = () => {
             timestamp: serverTimestamp(),
             name: groupName,
             owner: user?.uid,
+            admin:[user?.uid],
+            member:[user?.uid]
 
         }).then(async (res) => {
-            await addDoc(collection(db, 'group', res.id, 'admin'), {
-                admin: [user?.uid]
-            })
-            await addDoc(collection(db, 'group', res.id, 'member'), {
-                admin: [user?.uid]
-            })
-            setGroupName("");
+            // await addDoc(collection(db, 'group',res.id, 'admin'), {
+            //     admins: [user?.uid]
+            // })
+            // await addDoc(collection(db, 'group',res.id, 'member'), {
+            //     members:user?.uid,
+            // })
+            // setGroupName("");
             setModalVisible(false);
         }).catch((error) => console.log("Group Create failed: " + error.message));
     }

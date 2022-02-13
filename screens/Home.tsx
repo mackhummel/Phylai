@@ -1,5 +1,5 @@
 import { Platform, ScrollView, StyleSheet, View, Image, Dimensions, Modal, Pressable } from 'react-native';
-import { collection, addDoc, serverTimestamp, query,  Timestamp, onSnapshot, orderBy, getDoc, getDocs } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, query,  Timestamp, onSnapshot, orderBy, getDoc, getDocs, collectionGroup, where } from 'firebase/firestore';
 import { getAuth, signOut } from "firebase/auth";
 import React, { useEffect, useState } from 'react';
 import { getStorage, ref, uploadBytes } from '@firebase/storage';
@@ -20,12 +20,20 @@ const Home = (props: any) => {
   const [image, setImage] = useState<any>();
   const [uploading, setUploading] = useState(false);
   const [groups, setGroups] = useState<any>();
+  const [groupMessages, SetGroupMessages] = useState<any>();
 
   useEffect(() => {
-    const qgroup = query(collection(db,'group'));
+    const qgroup = query(collection(db, "group"),where('member','array-contains',user?.uid));
     async function getGroups(){
-       setGroups((await getDocs(qgroup)).docs.map((doc)=>doc.data()));
+      const userGroups = (await getDocs(qgroup)).docs.map( (doc)=>
+        // console.log(doc);
+        // const qmess = query(collection(db,'group',doc.id,'messages'));
+        // SetGroupMessages((await getDocs(qmess)).docs.map((message)=>message.data()));
+        // console.log(groupMessages);
       
+        doc.data()
+      );
+      setGroups(userGroups);
     }
     getGroups();
     const q = query(collection(db, "message"), orderBy('timestamp', 'desc'));
@@ -37,8 +45,6 @@ const Home = (props: any) => {
       allowsEditing: true,
 
     });
-
-    console.log({ pickerResult });
     try {
       setUploading(true);
 
@@ -105,7 +111,8 @@ const Home = (props: any) => {
           <Text style={styles.title}>Hello {user?.displayName}</Text>
           <Text style={styles.title}> Your Groups:</Text>
           {groups? groups.map((group:any)=>{
-            return(<View style={styles.list} >
+            console.log(group);
+            return(<View style={styles.list} key={group.id} >
               <Text>{group.name}</Text>
             </View>);
           }):null}
