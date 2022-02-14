@@ -1,6 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
 import { Platform, StyleSheet, View } from 'react-native';
-//import { View, Text } from '../components/Themed';
 import React, { useState } from "react";
 import { Button, Input, Image, } from 'react-native-elements';
 import { createUserWithEmailAndPassword, getAuth, updateProfile } from '@firebase/auth';
@@ -8,7 +7,6 @@ import { db } from '../config/firebase';
 import { addDoc, collection } from 'firebase/firestore';
 
 const logo = require('../assets/Phylai.png');
-
 
 const SignUp = (props: any) => {
   const [email, setEmail] = useState('');
@@ -33,7 +31,6 @@ const SignUp = (props: any) => {
             username: username,
             email: email,
             siteAdmin: true,
-            groups: []
           }).then(() => {
             console.log("Added user to DB successfully");
             props.navigation.replace('Login');
