@@ -1,7 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
-import { Platform, StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View,} from 'react-native';
 import React, { useState } from "react";
-import { Button, Input, Image, } from 'react-native-elements';
+import { Button, Input, Image, Divider, Text} from 'react-native-elements';
 import { createUserWithEmailAndPassword, getAuth, updateProfile } from '@firebase/auth';
 import { db } from '../config/firebase';
 import { addDoc, collection } from 'firebase/firestore';
@@ -14,6 +14,7 @@ const SignUp = (props: any) => {
   const [username, setUsername] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [rememberMe, setRemember] = useState(false);
   const auth = getAuth();
 
   const createAccount = async () => {
@@ -47,20 +48,29 @@ const SignUp = (props: any) => {
   return (
     <View style={styles.container}>
       <Image source={logo} style={styles.image} />
+      <Text h2> Sign Up </Text>
       <View style={styles.inputContainer}>
-        <Input
-          placeholder='First Name'
-          value={firstName}
-          textContentType='name'
-          onChangeText={(text) => setFirstName(text)}
-        />
-        <Input
-          placeholder='Last Name'
-          value={lastName}
-          textContentType='name'
-          onChangeText={(text) => setLastName(text)}
-          
-        />
+        <View style={styles.vertical}>
+          <Input
+            placeholder='First Name'
+            value={firstName}
+            textContentType='name'
+            onChangeText={(text) => setFirstName(text)}
+            containerStyle={{
+              width:'50%',
+            }}
+          />
+          <Divider orientation="vertical" width={0} />
+          <Input
+            placeholder='Last Name'
+            value={lastName}
+            textContentType='name'
+            onChangeText={(text) => setLastName(text)}
+            containerStyle={{
+              width:'50%',
+            }}
+          />
+        </View>
         <Input
           placeholder='Username'
           value={username}
@@ -68,7 +78,7 @@ const SignUp = (props: any) => {
           onChangeText={(text) => setUsername(text)}
         />
         <Input
-          placeholder='Email'
+          placeholder='Email Address'
           autoFocus
           value={email}
           textContentType='emailAddress'
@@ -89,11 +99,16 @@ const SignUp = (props: any) => {
         onPress={() => createAccount()}
         title='Create Account'
         buttonStyle={{ backgroundColor: 'green' }}
+        containerStyle={{
+          width:styles.inputContainer.width,
+        }}
       />
       <Button
         onPress={login}
         title='Back to Login'
-
+        containerStyle={{
+          width:styles.inputContainer.width,
+        }}
       />
       <StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'} />
     </View>
@@ -103,6 +118,7 @@ const styles = StyleSheet.create({
   image: {
     width: 200,
     height: 200,
+    borderRadius: 100,
   },
   container: {
     flex: 1,
@@ -113,15 +129,19 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     padding: 20,
-    width: Platform.OS === 'ios' ? "80%" : "40%",
+    width: Platform.OS === 'ios' ? "80%" : "50%",
   },
   loading: {
     flex: 1,
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-  }
-
+  },
+  vertical: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+  },
 
 })
 export default SignUp;

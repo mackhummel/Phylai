@@ -1,7 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import { Platform, StyleSheet, View, ActivityIndicator } from 'react-native';
 import React, {useEffect, useState } from "react";
-import { Button, Input, Image, } from 'react-native-elements';
+import { Button, Input, Image, Text} from 'react-native-elements';
 
 import {  getAuth, onAuthStateChanged, signInWithEmailAndPassword } from '@firebase/auth';
 const logo = require('../assets/Phylai.png');
@@ -43,6 +43,7 @@ const Login = (props: any) => {
   return (
     <View style={styles.container}>
       <Image source={logo} style={styles.image} />
+      <Text h2> Sign In </Text>
       <View style={styles.inputContainer}>
         <Input
           placeholder='Email'
@@ -63,11 +64,18 @@ const Login = (props: any) => {
       <Button
         onPress={signIn}
         title='Sign In'
+        buttonStyle={{ borderRadius: 30}}
+        containerStyle={{
+          width:styles.inputContainer.width,
+        }}
       />
       <Button
         onPress={signUp}
         title='Create Account'
-        buttonStyle={{ backgroundColor: 'green' }}
+        buttonStyle={{ backgroundColor: 'green' , borderRadius: 30}}
+        containerStyle={{
+          width:styles.inputContainer.width
+        }}
       />
       
       <StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'} />
@@ -78,6 +86,7 @@ const styles = StyleSheet.create({
   image: {
     width: 200,
     height: 200,
+    borderRadius: 100,
   },
   container: {
     flex: 1,
@@ -90,6 +99,7 @@ const styles = StyleSheet.create({
     padding: 20,
     width: Platform.OS === 'ios' ? "80%":"40%",
   },
+  
   loading: {
     flex: 1,
     width: '100%',
