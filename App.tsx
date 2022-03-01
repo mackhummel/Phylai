@@ -9,6 +9,7 @@ import { ThemeProvider } from 'react-native-elements';
 import useCachedResources from './hooks/useCachedResources';
 import { LogBox, ScrollView } from 'react-native';
 import Group from './screens/Group';
+import Dashboard from './screens/Dashboard';
 
 const Stack = createNativeStackNavigator()
 LogBox.ignoreLogs(['Warning: ...']);
@@ -46,8 +47,8 @@ export default function App() {
               }}>
                 <Stack.Screen name="Login" component={Login} />
                 <Stack.Screen name="SignUp" component={SignUp} />
-                <Stack.Screen name="Home" component={Home} />
-                <Stack.Screen name='Group' component={Group}/>
+                <Stack.Screen name="Dashboard" component={Dashboard} />
+               
               </Stack.Navigator>
             </NavigationContainer>
         </ThemeProvider>

@@ -1,7 +1,7 @@
 import { Platform, ScrollView, StyleSheet, View, Image, Dimensions, Modal, Pressable } from 'react-native';
-import { collection, addDoc, serverTimestamp, query, Timestamp, onSnapshot, orderBy, getDoc, getDocs, collectionGroup, where, updateDoc, arrayUnion, doc } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, query, Timestamp, onSnapshot, orderBy, getDoc, getDocs, collectionGroup, where, updateDoc, arrayUnion, doc, limit } from 'firebase/firestore';
 import { getAuth, signOut } from "firebase/auth";
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { getStorage, ref, uploadBytes } from '@firebase/storage';
 import { getDownloadURL, uploadBytesResumable } from 'firebase/storage';
 import 'react-native-get-random-values';
@@ -21,8 +21,17 @@ const Group = (props: any) => {
     const [sendImage, setSendImage] = useState<any>(null);
     const [uploading, setUploading] = useState(false);
 
-
+   
+    useLayoutEffect(() => {
+        const stackNavigator = props.navigation.getParent(); // this is what you need
+        if (stackNavigator) {
+          stackNavigator.setOptions({
+           headerTitle:name
+          });
+        }
+      }, []);
     useEffect(() => {
+       
         const q = query(collectionGroup(db, 'messages'), where("gid", "==", gid), orderBy('timestamp', 'desc'));
         const unsubscribe = onSnapshot(q, (snapshot) => setChat(snapshot.docs.map((doc) => ({ ...doc.data() }))));
         return unsubscribe;
@@ -32,7 +41,7 @@ const Group = (props: any) => {
     const addMember = async (username: any, gid: any) => {
         //Bad practice, update to only grab single user from firebase
         const document = doc(db, 'group', gid);
-        const user = (await getDocs(query(collection(db, 'user'), where('username', "==", username)))).docs.map((doc) => doc.data());
+        const user = (await getDocs(query(collection(db, 'user'), where('username', "==", username), limit(1)))).docs.map((doc) => doc.data());
         const uid = user[0].uid;
         await updateDoc(document, {
             member: arrayUnion(uid)
@@ -64,7 +73,7 @@ const Group = (props: any) => {
         return await getDownloadURL(fileRef);
     }
     const sendMessage = async () => {
-        if((sendImage === null) && (message === "")){
+        if ((sendImage === null) && (message === "")) {
             return;
         }
         const image = await uploadImage(sendImage);
@@ -102,10 +111,8 @@ const Group = (props: any) => {
         <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}>
             <SafeAreaView >
                 <View style={styles.container}>
-                    <Text style={styles.title}>
-                        {name}
-                    </Text>
-                    {admin ? <View>
+
+                    {admin ? <View style={styles.inputContainer}>
                         <Input
                             placeholder='Username'
                             value={newMember}
@@ -125,7 +132,7 @@ const Group = (props: any) => {
                             onChangeText={(text) => setMessage(text)}
                         />
                     </View>
-                    {sendImage ? <Image source={{uri:sendImage}} style={{ width: 100, height:100, resizeMode: "contain", }} /> : null}
+                    {sendImage ? <Image source={{ uri: sendImage }} style={{ width: 100, height: 100, resizeMode: "contain", }} /> : null}
                     <Button
                         title="Add Image"
                         onPress={() => selectPicture()}
@@ -146,7 +153,7 @@ const Group = (props: any) => {
                                     <Text style={{ textAlign: 'center' }}>
                                         {doc?.text}
                                     </Text>
-                                    <View style={styles.container}>{doc?.image ? <Image source={{uri:doc.image}} style={{ width: 100, height:100, resizeMode: "contain", }} /> : null}</View>
+                                    <View style={styles.container}>{doc?.image ? <Image source={{ uri: doc.image }} style={{ width: 100, height: 100, resizeMode: "contain", }} /> : null}</View>
                                 </View>
                                 <Text>{"\n"}</Text>
                                 <Text>

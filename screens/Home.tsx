@@ -85,12 +85,13 @@ const Home = (props: any) => {
     <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}>
       <SafeAreaView >
         <View style={styles.container}>
+        {user?.photoURL? <Image source={{uri:user.photoURL}} style={{ width: 100, height:100, borderRadius:100/2, marginBottom:20 }} /> : null}
           <Text style={styles.title}>Hello {user?.displayName}</Text>
           <Text style={styles.title}> Your Groups:</Text>
           {groups? groups.map((group:any)=>{
             return(<View style={styles.list} key={group.id} >
               <Button title={group.data.name} onPress={()=>
-              props.navigation.replace('Group', { gid: group.id, name:group.data.name, admin: group.data.admin.includes(user?.uid) as boolean })
+              props.navigation.navigate('GroupDashboard',{screen:'Group',params:{ gid: group.id, name:group.data.name, admin: group.data.admin.includes(user?.uid) as boolean }})
             }
               
               />

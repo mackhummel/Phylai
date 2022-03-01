@@ -1,10 +1,13 @@
 import { StatusBar } from 'expo-status-bar';
-import { Platform, StyleSheet, View,} from 'react-native';
+import { Platform, StyleSheet, View, } from 'react-native';
 import React, { useState } from "react";
-import { Button, Input, Image, Divider, Text} from 'react-native-elements';
+import { Button, Input, Image, Divider, Text } from 'react-native-elements';
 import { createUserWithEmailAndPassword, getAuth, updateProfile } from '@firebase/auth';
 import { db } from '../config/firebase';
 import { addDoc, collection } from 'firebase/firestore';
+import * as ImagePicker from "expo-image-picker";
+import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/storage';
+import { v4 as uuidv4 } from 'uuid';
 
 const logo = require('../assets/Phylai.png');
 
@@ -14,15 +17,55 @@ const SignUp = (props: any) => {
   const [username, setUsername] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [profPic, setProfPic] = useState<any>();
   const [rememberMe, setRemember] = useState(false);
   const auth = getAuth();
 
+  const selectProfPic = async () => {
+    let pickerResult = await ImagePicker.launchImageLibraryAsync({
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+    try {
+      if (!pickerResult.cancelled) {
+        setProfPic(pickerResult.uri);
+      }
+    } catch (e) {
+      console.log(e);
+      alert("Upload failed, sorry :(");
+    }
+  }
+  const uploadImage = async (uri: any) => {
+    if (uri === null) {
+      return null;
+    }
+    const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri;
+    const blob = await new Promise<any>((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.onload = function () {
+        resolve(xhr.response);
+      };
+      xhr.onerror = function (e) {
+        console.log(e);
+        reject(new TypeError("Network request failed"));
+      };
+      xhr.responseType = "blob";
+      xhr.open("GET", uri, true);
+      xhr.send(null);
+    });
+    const fileRef = ref(getStorage(), uuidv4());
+    const result = await uploadBytesResumable(fileRef, blob);
+    return await getDownloadURL(fileRef);
+  }
   const createAccount = async () => {
+    const image = profPic ? await uploadImage(profPic) : null;
     await createUserWithEmailAndPassword(auth, email, password)
       .then(async (authUser) => {
         console.log("Created Account Successfully");
         await updateProfile(authUser.user, {
           displayName: username,
+          photoURL: image
         }).then(async () => {
           console.log("Updated Account Successfully");
           await addDoc(collection(db, "user"), {
@@ -32,6 +75,7 @@ const SignUp = (props: any) => {
             username: username,
             email: email,
             siteAdmin: true,
+            photoURL: image
           }).then(() => {
             console.log("Added user to DB successfully");
             props.navigation.replace('Login');
@@ -57,7 +101,7 @@ const SignUp = (props: any) => {
             textContentType='name'
             onChangeText={(text) => setFirstName(text)}
             containerStyle={{
-              width:'50%',
+              width: '50%',
             }}
           />
           <Divider orientation="vertical" width={0} />
@@ -67,7 +111,7 @@ const SignUp = (props: any) => {
             textContentType='name'
             onChangeText={(text) => setLastName(text)}
             containerStyle={{
-              width:'50%',
+              width: '50%',
             }}
           />
         </View>
@@ -92,22 +136,33 @@ const SignUp = (props: any) => {
           onChangeText={(text) => setPassword(text)}
           onSubmitEditing={() => createAccount()}
         />
+        {profPic ? <Image source={{uri:profPic}} style={{ width: 100, height:100, resizeMode: "contain", }} /> : null}
+        <View style={styles.vertical}>
         
+            <Button
+              onPress={() => selectProfPic()}
+              title="Add Profile Picture"
+              buttonStyle={{ backgroundColor: 'black' }}
+
+            />
+         
+        </View>
 
       </View>
+
       <Button
         onPress={() => createAccount()}
         title='Create Account'
         buttonStyle={{ backgroundColor: 'green' }}
         containerStyle={{
-          width:styles.inputContainer.width,
+          width: styles.inputContainer.width,
         }}
       />
       <Button
         onPress={login}
         title='Back to Login'
         containerStyle={{
-          width:styles.inputContainer.width,
+          width: styles.inputContainer.width,
         }}
       />
       <StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'} />
@@ -142,6 +197,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-evenly',
   },
+  
 
 })
 export default SignUp;
+
+
