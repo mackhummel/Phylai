@@ -8,11 +8,10 @@ const Dashboard = createNativeStackNavigator();
 function DashboardStack(props:any){
     return(
         <Dashboard.Navigator screenOptions={{
-            headerShown: true,
+           
             headerBackTitleVisible:true,
           }}>
             <Dashboard.Screen name="Home" component={Home}/>
-            
             <Dashboard.Screen name="GroupDashboard" component={GroupDashboard}  options={()=>({
                 headerTitle:''
             })}/>

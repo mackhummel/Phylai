@@ -1,11 +1,11 @@
 import React from "react";
 import { View , Text} from "react-native";
 
-const GroupCalendar = () => {
-    
+const GroupCalendar = (props:any) => {
+  const { gid, name, admin } = props.route.params;
     return (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Text>Calendar!!</Text>
+        <Text>Calendar!! for {name}</Text>
       </View>
     );
   }

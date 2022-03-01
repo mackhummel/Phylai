@@ -22,14 +22,7 @@ const Group = (props: any) => {
     const [uploading, setUploading] = useState(false);
 
    
-    useLayoutEffect(() => {
-        const stackNavigator = props.navigation.getParent(); // this is what you need
-        if (stackNavigator) {
-          stackNavigator.setOptions({
-           headerTitle:name
-          });
-        }
-      }, []);
+    
     useEffect(() => {
        
         const q = query(collectionGroup(db, 'messages'), where("gid", "==", gid), orderBy('timestamp', 'desc'));
@@ -144,7 +137,7 @@ const Group = (props: any) => {
                     />
                     {chat === undefined ? null : chat.map((doc: any) => {
                         return (
-                            <View style={styles.list} key={doc?.id}>
+                            <View style={styles.list} key={doc.id}>
                                 <Text>
                                     From: {doc?.username}
                                 </Text>
