@@ -98,6 +98,11 @@ const Home = (props: any) => {
             </View>);
           }):null}
           <AddGroup/>
+          <Button title="Personal Calendar" onPress={()=>
+              props.navigation.navigate('PersonalCalendar')
+            }
+              
+          />
           <Button onPress={signOutUser} title="Sign Out" />
           {/* <Button onPress={() => selectProfPic()} title="Upload Image" />
           {image ? <Image source={{ uri: image }} style={{ width: Dimensions.get('window').width / 1.5, height: Dimensions.get('window').width / 3, resizeMode: "contain", }} /> : null}
