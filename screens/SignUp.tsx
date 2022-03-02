@@ -1,22 +1,26 @@
 import { StatusBar } from 'expo-status-bar';
-import { Platform, StyleSheet, View, } from 'react-native';
+import { Platform, StyleSheet, View, Image, Text } from 'react-native';
 import React, { useState } from "react";
-import { Button, Input, Image, Divider, Text } from 'react-native-elements';
 import { createUserWithEmailAndPassword, getAuth, updateProfile } from '@firebase/auth';
 import { db } from '../config/firebase';
 import { addDoc, collection } from 'firebase/firestore';
 import * as ImagePicker from "expo-image-picker";
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/storage';
 import { v4 as uuidv4 } from 'uuid';
+import { useTheme, Button, TextInput, Divider, IconButton, } from 'react-native-paper';
+import { Icon } from 'react-native-paper/lib/typescript/components/Avatar/Avatar';
 
 const logo = require('../assets/Phylai.png');
-
+const anon = require('../assets/anon.png');
 const SignUp = (props: any) => {
+
+  const { colors } = useTheme();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [hidden, setHidden] = useState(true);
   const [profPic, setProfPic] = useState<any>();
   const [rememberMe, setRemember] = useState(false);
   const auth = getAuth();
@@ -90,81 +94,87 @@ const SignUp = (props: any) => {
     props.navigation.replace('Login');
   }
   return (
-    <View style={styles.container}>
+    <View style={{backgroundColor:colors.surface,
+      flex: 1,
+      width: '100%',
+      alignItems: 'center',
+      justifyContent: 'center',}}>
       <Image source={logo} style={styles.image} />
-      <Text h2> Sign Up </Text>
+      <Text style={{ marginTop: 15, marginBottom:15, fontSize: 35, color:colors.text }}> Create Account </Text>
+      <View style={styles.imgContainer}>{profPic ?  <Image source={{uri:profPic}} style={{ width: 60, height: 60, borderRadius: 60 / 2 }} /> : <Image source={anon} style={{ width: 60, height: 60, borderRadius: 60 / 2 }} />}</View>
       <View style={styles.inputContainer}>
         <View style={styles.vertical}>
-          <Input
+          <TextInput
+            autoComplete='never'
             placeholder='First Name'
             value={firstName}
             textContentType='name'
             onChangeText={(text) => setFirstName(text)}
-            containerStyle={{
-              width: '50%',
+            style={{
+              width: '48%',
             }}
           />
-          <Divider orientation="vertical" width={0} />
-          <Input
+          <Divider style={{ width: "4%", backgroundColor: 'transparent' }} />
+          <TextInput
+            autoComplete='never'
             placeholder='Last Name'
             value={lastName}
             textContentType='name'
             onChangeText={(text) => setLastName(text)}
-            containerStyle={{
-              width: '50%',
+            style={{
+              width: '48%',
             }}
           />
         </View>
-        <Input
+        <TextInput
+          style={styles.textInput}
+          autoComplete='never'
           placeholder='Username'
           value={username}
           textContentType='username'
           onChangeText={(text) => setUsername(text)}
         />
-        <Input
+        <TextInput
+          style={styles.textInput}
+          autoComplete='never'
           placeholder='Email Address'
-          autoFocus
           value={email}
           textContentType='emailAddress'
           onChangeText={(text) => setEmail(text)}
         />
-        <Input
+        <TextInput
+          style={styles.textInput}
+          autoComplete='never'
           placeholder='Password'
-          secureTextEntry
-          value={password}
-          textContentType='password'
           onChangeText={(text) => setPassword(text)}
-          onSubmitEditing={() => createAccount()}
+          secureTextEntry={hidden}
+          value={password}
+          
+          right={<TextInput.Icon name="eye" onPress={() => setHidden(!hidden)} />}
         />
-        {profPic ? <Image source={{uri:profPic}} style={{ width: 100, height:100, resizeMode: "contain", }} /> : null}
-        <View style={styles.vertical}>
-        
-            <Button
-              onPress={() => selectProfPic()}
-              title="Add Profile Picture"
-              buttonStyle={{ backgroundColor: 'black' }}
 
-            />
-         
-        </View>
+
+        <View style={{
+           alignItems: 'center',
+           justifyContent: 'center',
+           flexDirection:'row',
+          
+        }}><IconButton icon='image-plus'  size={40} onPress={() => selectProfPic()}> </IconButton><Text style={{color:colors.text}}>Add Profile Photo</Text></View>
+
+
 
       </View>
 
       <Button
         onPress={() => createAccount()}
-        title='Create Account'
-        buttonStyle={{ backgroundColor: 'green' }}
-        containerStyle={{
-          width: styles.inputContainer.width,
-        }}
-      />
+        mode="contained"
+        style={{ marginBottom: 10 }}
+      >Create</Button>
       <Button
         onPress={login}
-        title='Back to Login'
-        containerStyle={{
-          width: styles.inputContainer.width,
-        }}
-      />
+        mode="outlined"
+        style={{ margin: 10 }}
+      >Back To Login</Button>
       <StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'} />
     </View>
   )
@@ -183,8 +193,8 @@ const styles = StyleSheet.create({
 
   },
   inputContainer: {
-    padding: 20,
-    width: Platform.OS === 'ios' ? "80%" : "50%",
+    padding: 10,
+    width: Platform.OS === 'ios' ? "90%" : "60%",
   },
   loading: {
     flex: 1,
@@ -197,7 +207,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-evenly',
   },
-  
+  textInput: {
+    marginTop: 10,
+  },
+  imgContainer: {
+    width: '30%',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+
 
 })
 export default SignUp;

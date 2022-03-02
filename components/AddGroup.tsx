@@ -1,10 +1,12 @@
 import { StyleSheet, View, Modal, Pressable, Text, Platform } from 'react-native';
 import React, { useState } from "react";
-import { Button, Input } from 'react-native-elements';
+
+import { Input } from 'react-native-elements';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { db } from '../config/firebase';
 import { v4 as uuidv4 } from 'uuid';
+import { Button, IconButton } from 'react-native-paper';
 
 
 
@@ -38,7 +40,7 @@ const AddGroup = () => {
     }
     return (
         <View>
-            <Button onPress={() => setModalVisible(!modalVisible)} title="Add group" />
+            <IconButton onPress={() => setModalVisible(!modalVisible)} icon='account-multiple-plus' />
             <Modal
                 animationType='slide'
                 transparent={false}
@@ -59,12 +61,12 @@ const AddGroup = () => {
 
                         <Button
                             onPress={() => createGroup()}
-                            title='Create'
-                        ></Button>
+                           
+                        >Create</Button>
                         <Button
                             onPress={() => setModalVisible(!modalVisible)}
-                            title='Cancel'
-                        >
+                            
+                        >Cancel
                         </Button>
                     </View>
                 </View>
