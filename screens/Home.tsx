@@ -99,7 +99,7 @@ const Home = (props: any) => {
           }):null}
           <AddGroup/>
           <Button title="Personal Calendar" onPress={()=>
-              props.navigation.navigate('PersonalCalendar')
+              props.navigation.navigate('PersonalCalendar',{groups: groups})
             }
               
           />

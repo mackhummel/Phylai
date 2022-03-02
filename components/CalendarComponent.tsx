@@ -1,72 +1,42 @@
-import React, {useState, useContext, useEffect, Component, Fragment} from 'react';
+import React, { useState, useContext, useEffect, Component, Fragment } from 'react';
 import { View, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { Button, Input, Text } from 'react-native-elements';
-import { Calendar, Agenda, CalendarProps } from "react-native-calendars";
+import { Calendar, Agenda, CalendarProps, CalendarList } from "react-native-calendars";
 import { getAuth } from 'firebase/auth';
 import { db } from '../config/firebase';
 import moment from 'moment';
 import { addDoc, collection, collectionGroup, onSnapshot, orderBy, query, Timestamp, where } from 'firebase/firestore';
 
-interface props {
-    gid: string;
-    admin: boolean;
-}
-
-const GroupCalendarComponent = (props: props) => {
-    const [events, setEvents] = useState<any>([]);
-    const gid = props.gid;
-    const admin = props.admin;
-
-
+const CalendarComponent = (props: any) => {
+    const { gid, events, admin, personal } = props;
 
     const [eventName, setEventName] = useState('');
     const [newDate, setNewDate] = useState('');
     const [eventInfo, setEventInfo] = useState('');
     const [eventLocation, setEventLocation] = useState('');
-
-    const [finalDates, setFinalDates] = useState({});
-    const[markedObjects, setMarkedObjects] = useState<any>({});
+    const [markedObjects, setMarkedObjects] = useState<any>({});
 
     //to be updated to current date
     const [selected, setSelected] = useState('2022-02-27');
 
     interface markedObj {
         [key: string]: {};
-      }
-    const markedDates : markedObj = {};
-    
-
-    useEffect(() => {
-        
-        //poll changes in events
-        const q2 = query(collectionGroup(db, 'events'), where("gid", "==", props.gid), orderBy('timestamp', 'desc'));
-        const unsubscribeEvents = onSnapshot(q2, (snapshot) => setEvents(snapshot.docs.map((doc) => ({ ...doc.data() }))));
-
-        return () => {
-            unsubscribeEvents();
-         }
-
-    }, []);
+    }
+    const markedDates: markedObj = {};
 
     useEffect(() => {
 
-        // markedDates[selected] = {
-        //     selected: true,
-        //     disableTouchEvent: true,
-        //     selectedColor: 'blue',
-        //     selectedTextColor: 'white'
-        // };
         events.forEach((event: { timestamp: any; }) => {
-            markedDates[event.timestamp] = {marked: true, dotColor: 'blue'};
+            markedDates[event.timestamp] = { marked: true, dotColor: 'blue' };
         });
         setMarkedObjects(markedDates);
-        
+
     }, [events]);
 
 
 
     const addEvent = async () => {
-        if((eventName === "") || (newDate === "")){
+        if ((eventName === "") || (newDate === "")) {
             return;
         }
         await addDoc(collection(db, "group", gid, "events"), {
@@ -86,7 +56,79 @@ const GroupCalendarComponent = (props: props) => {
 
     const onDayPress: CalendarProps['onDayPress'] = day => {
         setSelected(day.dateString);
-      };
+    };
+
+    const displayEvents = (day: any) => {
+
+        //filter selected events
+        //console.log(events);
+        const filteredEvents = events.filter((event: any) => day === event.timestamp);
+
+        console.log(filteredEvents);
+
+
+        return (
+            <View>
+                {filteredEvents.length === 0 ? null : filteredEvents.map((doc: any) => {
+                    return (
+                        <View style={styles.list} key={doc.gid}>
+                            <Text>
+                                Location: {doc?.location}
+                            </Text>
+                            <Text>{"\n"}</Text>
+                            <View style={{ alignItems: 'center', display: 'flex', marginBottom: 4 }}>
+                                <Text style={{ textAlign: 'center' }}>
+                                    {doc?.name}
+                                </Text>
+                                <Text style={{ textAlign: 'center' }}>
+                                    {doc?.information}
+                                </Text>
+                            </View>
+                            <Text>{"\n"}</Text>
+                            <Text>
+                                {doc?.timestamp}
+                            </Text>
+                        </View>
+                    )
+                })
+
+                }
+            </View>
+        )
+    }
+
+
+
+
+    // filteredEvents === undefined ? null : filteredEvents.forEach((doc: any)=> {
+    //     return (
+    //         <View style={styles.list} key={doc.gid}>
+    //             <Text>
+    //                 Location: {doc?.location}
+    //             </Text>
+    //             {/*
+    //             <Text>{"\n"}</Text>
+    //             <View style={{ alignItems: 'center', display: 'flex', marginBottom: 4 }}>
+    //                 <Text style={{ textAlign: 'center' }}>
+    //                     {doc?.name}
+    //                 </Text>
+    //                 <Text style={{ textAlign: 'center' }}>
+    //                     {doc?.information}
+    //                 </Text>
+    //             </View>
+    //             <Text>{"\n"}</Text>
+    //             <Text>
+    //                 {doc?.timestamp}
+    //             </Text>
+    //             */}
+    //         </View>
+
+    //         <Text>test</Text>
+
+    //     )
+    // })
+
+
 
     return (
         <View style={styles.list}>
@@ -95,45 +137,47 @@ const GroupCalendarComponent = (props: props) => {
                 value={eventName}
                 onChangeText={(text) => setEventName(text)}
             />
-             <Input
+            <Input
                 placeholder='Event Date (Datestring format)'
                 value={newDate}
                 onChangeText={(text) => setNewDate(text)}
             />
-             <Input
+            <Input
                 placeholder='Event Location'
                 value={eventLocation}
                 onChangeText={(text) => setEventLocation(text)}
             />
-             <Input
+            <Input
                 placeholder='Event Information'
                 value={eventInfo}
                 onChangeText={(text) => setEventInfo(text)}
             />
             <Button
-            onPress={() => addEvent()}
-            title="Add Event"
-            buttonStyle={{ backgroundColor: 'rgba(111, 202, 186, 1)' }}
+                onPress={() => addEvent()}
+                title="Add Event"
+                buttonStyle={{ backgroundColor: 'rgba(111, 202, 186, 1)' }}
             />
             <Fragment>
                 <Calendar
-                enableSwipeMonths
-                current={'2022-02-18'}
-                style={styles.calendar}
-                onDayPress={onDayPress}
-                markedDates={{...markedObjects, [selected]: {
-                    selected: true,
-                    disableTouchEvent: true,
-                    selectedColor: 'blue',
-                    selectedTextColor: 'white'
-                  } }}
+                    enableSwipeMonths={true}
+                    current={'2022-02-18'}
+                    //style={styles.calendar}
+                    onDayPress={onDayPress}
+                    hideArrows={false}
+                    markedDates={{
+                        ...markedObjects, [selected]: {
+                            selected: true,
+                            disableTouchEvent: true,
+                            selectedColor: 'blue',
+                            selectedTextColor: 'white'
+                        }
+                    }
+                    }
+                    theme={{ arrowColor: 'blue' }}
                 />
             </Fragment>
+            {displayEvents(selected)}
         </View>
-            
-
-
-        
 
     )
 };
@@ -146,7 +190,6 @@ const styles = StyleSheet.create({
     list: {
         borderColor: "black",
         borderWidth: 2,
-        width: Platform.OS === 'ios' ? "80%" : "20%",
         margin: 10,
         padding: 5
     },
@@ -196,12 +239,9 @@ const styles = StyleSheet.create({
     modalText: {
         marginBottom: 15,
         textAlign: "center"
-    },
-    calendar: {
-        marginBottom: 10
-      }
+    }
 });
-export default GroupCalendarComponent;
+export default CalendarComponent;
 
 function useStateCallback<T>(arg0: never[]): [any, any] {
     throw new Error('Function not implemented.');
