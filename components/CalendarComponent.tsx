@@ -8,7 +8,7 @@ import moment from 'moment';
 import { addDoc, collection, collectionGroup, onSnapshot, orderBy, query, Timestamp, where } from 'firebase/firestore';
 
 const CalendarComponent = (props: any) => {
-    const { gid, events, admin, personal } = props;
+    const { gid, events, admin, personal, uid } = props;
 
     const [eventName, setEventName] = useState('');
     const [newDate, setNewDate] = useState('');
@@ -40,19 +40,38 @@ const CalendarComponent = (props: any) => {
         if ((eventName === "") || (newDate === "")) {
             return;
         }
-        await addDoc(collection(db, "group", gid, "events"), {
-            gid: gid,
-            timestamp: newDate,
-            name: eventName,
-            information: eventInfo ? eventInfo : null,
-            location: eventLocation ? eventLocation : null
-        }).then(() => {
-            console.log("Event Added Sucessfully")
-            setEventName("");
-            setNewDate("");
-            setEventInfo("");
-            setEventLocation("");
-        }).catch((error) => console.log("Add Event failed: " + error.message));
+        if(personal){
+            console.log(uid);
+            await addDoc(collection(db, "user", "events"), {
+                uid: uid,
+                timestamp: newDate,
+                name: eventName,
+                information: eventInfo ? eventInfo : null,
+                location: eventLocation ? eventLocation : null
+            }).then(() => {
+                console.log("Event Added Sucessfully")
+                setEventName("");
+                setNewDate("");
+                setEventInfo("");
+                setEventLocation("");
+            }).catch((error) => console.log("Add Event failed: " + error.message));
+
+
+        }else{
+            await addDoc(collection(db, "group", gid, "events"), {
+                gid: gid,
+                timestamp: newDate,
+                name: eventName,
+                information: eventInfo ? eventInfo : null,
+                location: eventLocation ? eventLocation : null
+            }).then(() => {
+                console.log("Event Added Sucessfully")
+                setEventName("");
+                setNewDate("");
+                setEventInfo("");
+                setEventLocation("");
+            }).catch((error) => console.log("Add Event failed: " + error.message));
+        }
     }
 
     const onDayPress: CalendarProps['onDayPress'] = day => {

@@ -91,7 +91,7 @@ const Home = (props: any) => {
           {groups? groups.map((group:any)=>{
             return(<View style={styles.list} key={group.id} >
               <Button title={group.data.name} onPress={()=>
-              props.navigation.navigate('GroupDashboard',{ gid: group.id, name:group.data.name, admin: group.data.admin.includes(user?.uid) as boolean })
+              props.navigation.navigate('GroupDashboard',{ gid: group.id, name:group.data.name , admin: group.data.admin.includes(user?.uid) as boolean })
             }
               
               />
@@ -99,7 +99,7 @@ const Home = (props: any) => {
           }):null}
           <AddGroup/>
           <Button title="Personal Calendar" onPress={()=>
-              props.navigation.navigate('PersonalCalendar',{groups: groups})
+              props.navigation.navigate('PersonalCalendar',{groups: groups, uid: user?.uid})
             }
               
           />
