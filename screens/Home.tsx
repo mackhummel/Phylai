@@ -103,7 +103,7 @@ const Home = (props: any) => {
           }) : null}
 
           <Button title="Personal Calendar" onPress={() =>
-            props.navigation.navigate('PersonalCalendar')
+            props.navigation.navigate('PersonalCalendar', {groups: groups, uid: user?.uid})
           }
 
           />

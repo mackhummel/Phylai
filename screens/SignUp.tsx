@@ -3,7 +3,7 @@ import { Platform, StyleSheet, View, Image, Text } from 'react-native';
 import React, { useState } from "react";
 import { createUserWithEmailAndPassword, getAuth, updateProfile } from '@firebase/auth';
 import { db } from '../config/firebase';
-import { addDoc, collection } from 'firebase/firestore';
+import { addDoc, collection, doc, setDoc } from 'firebase/firestore';
 import * as ImagePicker from "expo-image-picker";
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/storage';
 import { v4 as uuidv4 } from 'uuid';
@@ -72,7 +72,7 @@ const SignUp = (props: any) => {
           photoURL: image
         }).then(async () => {
           console.log("Updated Account Successfully");
-          await addDoc(collection(db, "user"), {
+          await setDoc(doc(db, "user", authUser.user.uid), {
             uid: authUser.user.uid,
             firstName: firstName,
             lastName: lastName,
