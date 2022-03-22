@@ -5,7 +5,7 @@ import { Calendar, Agenda, CalendarProps, CalendarList } from "react-native-cale
 import { getAuth } from 'firebase/auth';
 import { db } from '../config/firebase';
 import moment from 'moment';
-import { addDoc, collection, collectionGroup, onSnapshot, orderBy, query, Timestamp, where } from 'firebase/firestore';
+import { addDoc, collection, collectionGroup, doc, getDoc, onSnapshot, orderBy, query, Timestamp, where } from 'firebase/firestore';
 
 const CalendarComponent = (props: any) => {
     const { gid, events, admin, personal, uid } = props;
@@ -15,6 +15,7 @@ const CalendarComponent = (props: any) => {
     const [eventInfo, setEventInfo] = useState('');
     const [eventLocation, setEventLocation] = useState('');
     const [markedObjects, setMarkedObjects] = useState<any>({});
+    const [userId, setUserId] = useState('');
 
     let today = new Date().toISOString().slice(0, 10);
 
@@ -32,6 +33,8 @@ const CalendarComponent = (props: any) => {
         });
         setMarkedObjects(markedDates);
 
+
+
     }, [events]);
 
 
@@ -42,7 +45,7 @@ const CalendarComponent = (props: any) => {
         }
         if(personal){
             console.log(uid);
-            await addDoc(collection(db, "user", "events"), {
+            await addDoc(collection(db, "user", uid, "events"), {
                 uid: uid,
                 timestamp: newDate,
                 name: eventName,

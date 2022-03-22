@@ -19,14 +19,22 @@ const PersonalCalendar = (props:any) => {
             });
         });
 
-        const q2 = query(collectionGroup(db, "user"), where("uid", "==", uid));
-        const unsubscribeEvents = onSnapshot(q2, (snapshot) => setEvents(
-        snapshot.docs.map((doc) => ({ ...doc.data() }))));
+        const q2 = query(collectionGroup(db, "events"), where("uid", "==", uid));
+        const unsubscribeEvents = onSnapshot(q2, (snapshot) => {
+            snapshot.docs.map( (doc) => {
+                setEvents((prevEvents: any) => ([ ...prevEvents, doc.data()]));
+
+            });
+        });
+        
+        
+        // setEvents(
+        // snapshot.docs.map((doc) => ({ ...doc.data() }))));
 
   
     return () => {
         unsubscribeEvents();
-     }
+    }
     }, []);
 
    
