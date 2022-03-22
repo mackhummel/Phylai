@@ -1,16 +1,17 @@
 import { StatusBar } from 'expo-status-bar';
-import { Platform, StyleSheet, View, ActivityIndicator } from 'react-native';
+import { Platform, StyleSheet, View, ActivityIndicator, Image , Text} from 'react-native';
 import React, {useEffect, useState } from "react";
-import { Button, Input, Image, Text} from 'react-native-elements';
-
+import {Button, useTheme, TextInput} from 'react-native-paper'
 import {  getAuth, onAuthStateChanged, signInWithEmailAndPassword } from '@firebase/auth';
 const logo = require('../assets/Phylai.png');
 
 
 const Login = (props: any) => {
+  const { colors } = useTheme();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(true);
+  const [hidden, setHidden] = useState(true);
   const auth = getAuth();
 
   useEffect(
@@ -41,42 +42,46 @@ const Login = (props: any) => {
     </View>)
   }
   return (
-    <View style={styles.container}>
+    <View style={{backgroundColor:colors.surface,
+      flex: 1,
+      width: '100%',
+      alignItems: 'center',
+      justifyContent: 'center',}}>
       <Image source={logo} style={styles.image} />
-      <Text h2> Sign In </Text>
+      <Text  style={{marginBottom:25, fontSize:35, color:colors.text}}> Sign In </Text>
       <View style={styles.inputContainer}>
-        <Input
-          placeholder='Email'
-          autoFocus
-          value={email}
-          textContentType='emailAddress'
-          onChangeText={(text) => setEmail(text)}
-        />
-        <Input
-          placeholder='Password'
-          secureTextEntry
-          value={password}
-          textContentType='password'
-          onChangeText={(text) => setPassword(text)}
-          onSubmitEditing={signIn}
-        />
+      <TextInput
+        autoComplete='never'
+        placeholder='Email'
+        onChangeText={(text) => setEmail(text)}
+        textContentType='emailAddress'
+        value={email}
+        style={{marginBottom:20}}
+        ></TextInput>
+        
+        <TextInput
+        autoComplete='never'
+        placeholder='Password'
+        onChangeText={(text) => setPassword(text)}
+        secureTextEntry={hidden}
+        value={password}
+        onSubmitEditing={signIn}
+        right={<TextInput.Icon name="eye" onPress={()=>setHidden(!hidden)} />}
+        >
+
+        </TextInput>
+
       </View>
       <Button
         onPress={signIn}
-        title='Sign In'
-        buttonStyle={{ borderRadius: 30}}
-        containerStyle={{
-          width:styles.inputContainer.width,
-        }}
-      />
+        mode="contained"
+        style={{margin:10}}
+      >Sign In</Button>
       <Button
         onPress={signUp}
-        title='Create Account'
-        buttonStyle={{ backgroundColor: 'green' , borderRadius: 30}}
-        containerStyle={{
-          width:styles.inputContainer.width
-        }}
-      />
+        mode="outlined"
+        style={{margin:10}}
+      >Create Account</Button>
       
       <StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'} />
     </View>
@@ -87,6 +92,7 @@ const styles = StyleSheet.create({
     width: 200,
     height: 200,
     borderRadius: 100,
+    marginBottom:60
   },
   container: {
     flex: 1,
@@ -97,7 +103,7 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     padding: 20,
-    width: Platform.OS === 'ios' ? "80%":"40%",
+    width: Platform.OS === 'ios' ? "80%":"50%",
   },
   
   loading: {

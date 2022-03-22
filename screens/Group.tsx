@@ -31,18 +31,7 @@ const Group = (props: any) => {
     }, []);
 
 
-    const addMember = async (username: any, gid: any) => {
-        //Bad practice, update to only grab single user from firebase
-        const document = doc(db, 'group', gid);
-        const user = (await getDocs(query(collection(db, 'user'), where('username', "==", username), limit(1)))).docs.map((doc) => doc.data());
-        const uid = user[0].uid;
-        await updateDoc(document, {
-            member: arrayUnion(uid)
-        }).then(() => {
-            console.log("Added Member successfully ");
-            setNewMember("");
-        }).catch((error) => console.log("Error in adding member: " + error.message));
-    }
+    
     const uploadImage = async (uri: any) => {
         if (uri === null) {
             return null;
@@ -105,19 +94,7 @@ const Group = (props: any) => {
             <SafeAreaView >
                 <View style={styles.container}>
 
-                    {admin ? <View style={styles.inputContainer}>
-                        <Input
-                            placeholder='Username'
-                            value={newMember}
-                            onChangeText={(text) => setNewMember(text)}
-                        />
-                        <Button
-                            onPress={() => addMember(newMember, gid)}
-                            title="Add Member"
-                            buttonStyle={{ backgroundColor: 'rgba(111, 202, 186, 1)' }}
-                        />
-
-                    </View> : null}
+                    
                     <View style={styles.inputContainer}>
                         <Input
                             placeholder='Message'
