@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import HomeNavigator from "./HomeNavigator";
 import Login from "../screens/Login";
 import SignUp from "../screens/SignUp";
+import LinkingConfiguration from './LinkingConfiguration';
 
 import { auth } from "../config/firebase";
 import LinkingConfiguration from './LinkingConfiguration';
