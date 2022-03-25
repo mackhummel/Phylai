@@ -1,6 +1,5 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createStackNavigator } from "@react-navigation/stack";
-
 import PersonalCalendar from "../screens/PersonalCalendar";
 import { Icon } from "react-native-elements";
 import Home from "../screens/Home";
@@ -17,6 +16,7 @@ import { MyContext } from "../constants/context";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
 import GroupDashboard from "./GroupNavigator";
+
 
 
 const Dashboard = createNativeStackNavigator();
