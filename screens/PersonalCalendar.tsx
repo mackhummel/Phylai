@@ -1,13 +1,18 @@
 import { collectionGroup, DocumentData, getDocs, onSnapshot, orderBy, query, where } from "firebase/firestore";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { View , Text} from "react-native";
 import CalendarComponent from '../components/CalendarComponent';
 import { db } from "../config/firebase";
+import { MyContext } from "../constants/context";
+
 
 const PersonalCalendar = (props:any) => {
     const [events, setEvents] = useState<any>([]);
 
-    const {groups, uid} = props.route.params;
+    const { groups, uid } = useContext(MyContext);
+    
+
+    console.log(groups);
 
     useEffect(() => {
         groups.forEach(async (group: any) => {
@@ -19,19 +24,13 @@ const PersonalCalendar = (props:any) => {
             });
         });
 
-        const q2 = query(collectionGroup(db, "events"), where("uid", "==", uid));
-        const unsubscribeEvents = onSnapshot(q2, (snapshot) => {
+    const q2 = query(collectionGroup(db, "events"), where("uid", "==", uid));
+    const unsubscribeEvents = onSnapshot(q2, (snapshot) => {
             snapshot.docs.map( (doc) => {
-                setEvents((prevEvents: any) => ([ ...prevEvents, doc.data()]));
-
-            });
+            setEvents((prevEvents: any) => ([ ...prevEvents, doc.data()]));
         });
+    });
         
-        
-        // setEvents(
-        // snapshot.docs.map((doc) => ({ ...doc.data() }))));
-
-  
     return () => {
         unsubscribeEvents();
     }

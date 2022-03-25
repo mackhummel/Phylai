@@ -1,7 +1,7 @@
 import { Platform, ScrollView, StyleSheet, View, Image, Dimensions, Modal, Pressable } from 'react-native';
 import { collection, addDoc, serverTimestamp, query, Timestamp, onSnapshot, orderBy, getDoc, getDocs, collectionGroup, where, updateDoc, doc, arrayUnion } from 'firebase/firestore';
 import { getAuth, signOut } from "firebase/auth";
-import React, { useEffect, useLayoutEffect, useState } from 'react';
+import React, { useContext, useEffect, useLayoutEffect, useState } from 'react';
 import { getStorage, ref, uploadBytes } from '@firebase/storage';
 import { getDownloadURL } from 'firebase/storage';
 import 'react-native-get-random-values';
@@ -12,6 +12,7 @@ import { db } from '../config/firebase';
 import * as ImagePicker from "expo-image-picker";
 import AddGroup from '../components/AddGroup';
 import { IconButton } from 'react-native-paper';
+import { MyContext } from '../constants/context';
 
 const Home = (props: any) => {
   const auth = getAuth();
@@ -20,19 +21,21 @@ const Home = (props: any) => {
   const [chat, setChat] = useState<any>([]);
   const [image, setImage] = useState<any>();
   const [uploading, setUploading] = useState(false);
-  const [groups, setGroups] = useState<any>();
   const [groupMessages, SetGroupMessages] = useState<any>([]);
 
-  useEffect(() => {
-    const q = query(collection(db, "group"), where('member', 'array-contains', user?.uid));
-    const unsubscribe = onSnapshot(q, (snapshot) => setGroups(snapshot.docs.map((doc) => ({
-      ...({
-        data: doc.data(),
-        id: doc.id
-      })
-    }))));
-    return unsubscribe;
-  }, []);
+  const { groups, uid } = useContext(MyContext);
+
+
+  // useEffect(() => {
+  //   const q = query(collection(db, "group"), where('member', 'array-contains', user?.uid));
+  //   const unsubscribe = onSnapshot(q, (snapshot) => setGroups(snapshot.docs.map((doc) => ({
+  //     ...({
+  //       data: doc.data(),
+  //       id: doc.id
+  //     })
+  //   }))));
+  //   return unsubscribe;
+  // }, []);
   
   const selectProfPic = async () => {
     let pickerResult = await ImagePicker.launchImageLibraryAsync({
@@ -95,20 +98,12 @@ const Home = (props: any) => {
           {groups ? groups.map((group: any) => {
             return (<View style={styles.list} key={group.id} >
               <Button title={group.data.name} onPress={() =>
-                props.navigation.navigate('GroupDashboard', { gid: group.id, name: group.data.name, admin: group.data.admin.includes(user?.uid) as boolean, adminArray: group.data.admin, memberArray: group.data.member })
+                props.navigation.navigate('GroupDashboard', {gid: group.id, name: group.data.name, admin: group.data.admin.includes(user?.uid) as boolean, adminArray: group.data.admin, memberArray: group.data.member })
               }
 
               />
             </View>);
           }) : null}
-
-          <Button title="Personal Calendar" onPress={() =>
-            props.navigation.navigate('PersonalCalendar', {groups: groups, uid: user?.uid})
-          }
-
-          />
-
-
         </View>
       </SafeAreaView>
     </ScrollView>
