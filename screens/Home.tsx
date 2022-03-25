@@ -6,16 +6,19 @@ import { getStorage, ref, uploadBytes } from '@firebase/storage';
 import { getDownloadURL } from 'firebase/storage';
 import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid';
-import { Button, Input, Text } from 'react-native-elements';
+import { Input, Text } from 'react-native-elements';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { db } from '../config/firebase';
 import * as ImagePicker from "expo-image-picker";
 import AddGroup from '../components/AddGroup';
-import { IconButton } from 'react-native-paper';
 import { MyContext } from '../constants/context';
+import { IconButton, List, useTheme, Button } from 'react-native-paper';
+const anon = require('../assets/anon.png');
+
 
 const Home = (props: any) => {
   const auth = getAuth();
+  const theme = useTheme();
   const user = auth.currentUser;
   const [message, setMessage] = useState("");
   const [chat, setChat] = useState<any>([]);
@@ -89,86 +92,49 @@ const Home = (props: any) => {
 
 
   return (
-    <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}>
-      <SafeAreaView >
-        <View style={styles.container}>
-          {user?.photoURL ? <Image source={{ uri: user.photoURL }} style={{ width: 100, height: 100, borderRadius: 100 / 2, marginBottom: 20 }} /> : null}
-          <Text style={styles.title}>Hello {user?.displayName}</Text>
-          <Text style={styles.title}> Your Groups:</Text>
-          {groups ? groups.map((group: any) => {
-            return (<View style={styles.list} key={group.id} >
-              <Button title={group.data.name} onPress={() =>
-                props.navigation.navigate('GroupDashboard', {gid: group.id, name: group.data.name, admin: group.data.admin.includes(user?.uid) as boolean, adminArray: group.data.admin, memberArray: group.data.member })
-              }
+    <View style={{ flex: 1 }}>
+      <View style={{ flex: 3 }}>
+        <ScrollView >
+          {/* {groups ? groups.map((group: any) => {
+              return (<View style={styles.list} key={group.id} >
+                <Button title={group.data.name} onPress={() =>
+                  props.navigation.navigate('GroupDashboard', { gid: group.id, name: group.data.name, admin: group.data.admin.includes(user?.uid) as boolean, adminArray: group.data.admin, memberArray: group.data.member })
+                }
+                />
+              </View>);
+            }) : null} */}
 
-              />
-            </View>);
-          }) : null}
-        </View>
-      </SafeAreaView>
-    </ScrollView>
+          {groups ? <List.Section>{groups.map((group: any) => {
+            return (<List.Item
+              title={group.data.name}
+              onPress={() => props.navigation.navigate('GroupDashboard', { gid: group.id, photoURL: group.data.photoURL ,name: group.data.name, admin: group.data.admin.includes(user?.uid) as boolean, adminArray: group.data.admin, memberArray: group.data.member })}
+              left={() => <Image source={{uri: group.data.photoURL? group.data.photoURL : anon }} style={{ width: 48, height: 48, borderRadius: 48 / 4 }} />}
+              right={() => (
+                <>
+                  <View style={{justifyContent:'center'}}>
+                    <Text style={{textAlign:'center'}}>Members</Text>
+                    <Text style={{textAlign:'center'}}>{group.data.member.length}</Text>
+                  </View>
+                  <IconButton icon='chevron-right'></IconButton>
+                </>
+              )}
+            ></List.Item>);
+          })}</List.Section> : null}
+        </ScrollView>
+      </View>
+    </View>
+
   )
 }
+
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  list: {
-
-    width: Platform.OS === 'ios' ? "80%" : "40%",
-    margin: 10,
-    padding: 5
-  },
-  title: {
-    fontSize: 27,
-    fontWeight: 'bold',
-    paddingBottom: 60
-  },
-  inputContainer: {
-    marginTop: 10,
-    width: Platform.OS === 'ios' ? "80%" : "40%",
-  },
-  buttonClose: {
-    backgroundColor: "#2196F3",
-  },
-  modalView: {
-    margin: 20,
-    backgroundColor: "white",
-    borderRadius: 20,
-    padding: 35,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5
-  },
-  button: {
-    borderRadius: 20,
-    padding: 10,
-    elevation: 2
-  },
-  centeredView: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 22
   },
-  textStyle: {
-    color: "white",
-    fontWeight: "bold",
-    textAlign: "center"
-  },
-  modalText: {
-    marginBottom: 15,
-    textAlign: "center"
-  }
-});
+})
 export default Home;
 
 

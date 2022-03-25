@@ -4,14 +4,14 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { connectStorageEmulator } from "firebase/storage";
 import React, { useContext, useEffect, useLayoutEffect, useState } from "react";
 import { Icon } from "react-native-elements";
+import { Appbar, IconButton } from "react-native-paper";
 import Group from "../screens/Group";
 import GroupCalendar from "../screens/GroupCalendar";
 import GroupMember from "../screens/GroupMember";
 import { getAuth } from "firebase/auth";
 import { MyContext } from "../constants/context";
-import { View } from "react-native";
+import { View, Image } from "react-native";
 import { ActivityIndicator } from "react-native-paper";
-
 
 const Tab = createBottomTabNavigator();
 function GroupDashboard(props: any) {
@@ -23,8 +23,17 @@ function GroupDashboard(props: any) {
 
     
     useLayoutEffect(() => {
-        props.navigation.setOptions({ headerTitle: props.route.params.name , headerRight:null});
-      }, [props.navigation, props.route]);
+        console.log(props.navigation.getParent())
+        props.navigation.setOptions({header:()=>(
+            <Appbar.Header>
+                <Appbar.BackAction onPress={()=>props.navigation.goBack()}/>
+                <Image source={{ uri: props.route.params.photoURL? props.route.params.photoURL : null }} style={{ width: 48, height: 48, borderRadius: 48 / 4 }} />
+                <Appbar.Content title={props.route.params.name}/>
+                <Appbar.Action icon='account-group'/>
+                <Appbar.Action icon='calendar'/>
+            </Appbar.Header>
+        )});
+      }, []);
         // const stackNavigator = props.navigation.getParent(); // this is what you need
         // if (stackNavigator) {
         //   stackNavigator.setOptions({

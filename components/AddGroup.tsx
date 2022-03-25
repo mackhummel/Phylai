@@ -6,7 +6,7 @@ import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { db } from '../config/firebase';
 import { v4 as uuidv4 } from 'uuid';
-import { Button, IconButton } from 'react-native-paper';
+import { Button, IconButton, useTheme } from 'react-native-paper';
 
 
 
@@ -15,6 +15,7 @@ const AddGroup = () => {
     const [groupName, setGroupName] = useState('');
     const auth = getAuth();
     const user = auth.currentUser;
+    const { colors } = useTheme();
 
     const createGroup = async () => {
         if (groupName === "") {
@@ -40,7 +41,9 @@ const AddGroup = () => {
     }
     return (
         <View>
-            <IconButton onPress={() => setModalVisible(!modalVisible)} icon='account-multiple-plus' />
+            <Button onPress={() => setModalVisible(!modalVisible)} icon='account-multiple-plus' mode='contained' style={{margin:10}}>
+                New Group
+            </Button>
             <Modal
                 animationType='slide'
                 transparent={false}

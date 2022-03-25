@@ -5,9 +5,9 @@ import PersonalCalendar from "../screens/PersonalCalendar";
 import { Icon } from "react-native-elements";
 import Home from "../screens/Home";
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Button, View } from "react-native";
+import { ActivityIndicator, View, Image } from "react-native";
 import AddGroup from "../components/AddGroup";
-import { IconButton } from "react-native-paper";
+import { IconButton, Appbar, Button } from "react-native-paper";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "../config/firebase";
 import { db } from '../config/firebase';
@@ -18,10 +18,12 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
 import GroupDashboard from "./GroupNavigator";
 
-const Dashboard = createNativeStackNavigator();
 
+const Dashboard = createNativeStackNavigator();
+const anon = require('../assets/anon.png');
 
 function HomeTab(props:any){
+  const user = auth.currentUser;
   const HomeTab = createBottomTabNavigator();
 
   const signOutUser = () => {
@@ -36,13 +38,16 @@ function HomeTab(props:any){
 
   return (
     <HomeTab.Navigator screenOptions={{
-          headerRight: () => (
-            <>
-              <AddGroup />
-              <IconButton icon='logout' onPress={signOutUser} />
-              </>
-          ),
-      }}>
+      header:()=>(
+          <Appbar.Header>
+            <Image source={{ uri: user?.photoURL ? user.photoURL : anon }} style={{ width: 48, height: 48, borderRadius: 48 / 2 }} />
+            <Appbar.Content title={user?.displayName}/>
+            <Appbar.Action icon='account-settings'/>
+            <Appbar.Action icon='logout' onPress={signOutUser}/>
+          </Appbar.Header>
+      )
+     
+    }}>
       <HomeTab.Screen name="Home" component={Home} />            
       <HomeTab.Screen name="PersonalCalendar" component={PersonalCalendar}/>
     </HomeTab.Navigator>
