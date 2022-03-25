@@ -109,6 +109,9 @@ const Home = (props: any) => {
             ></List.Item>);
           })}</List.Section> : null}
         </ScrollView>
+        <View style={styles.container}>
+          <AddGroup/>
+        </View>
       </View>
     </View>
 
