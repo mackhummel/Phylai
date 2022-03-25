@@ -11,10 +11,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { db } from '../config/firebase';
 import * as ImagePicker from "expo-image-picker";
 import AddGroup from '../components/AddGroup';
-<<<<<<< HEAD
 import { MyContext } from '../constants/context';
-=======
->>>>>>> 117902b554fad2eff71f4e6a1845dc4d260e056f
 import { IconButton, List, useTheme, Button } from 'react-native-paper';
 const anon = require('../assets/anon.png');
 
@@ -29,34 +26,8 @@ const Home = (props: any) => {
   const [uploading, setUploading] = useState(false);
   const [groupMessages, SetGroupMessages] = useState<any>([]);
 
-<<<<<<< HEAD
   const { groups, uid } = useContext(MyContext);
-
-
-  // useEffect(() => {
-  //   const q = query(collection(db, "group"), where('member', 'array-contains', user?.uid));
-  //   const unsubscribe = onSnapshot(q, (snapshot) => setGroups(snapshot.docs.map((doc) => ({
-  //     ...({
-  //       data: doc.data(),
-  //       id: doc.id
-  //     })
-  //   }))));
-  //   return unsubscribe;
-  // }, []);
   
-=======
-  useEffect(() => {
-    const q = query(collection(db, "group"), where('member', 'array-contains', user?.uid));
-    const unsubscribe = onSnapshot(q, (snapshot) => setGroups(snapshot.docs.map((doc) => ({
-      ...({
-        data: doc.data(),
-        id: doc.id
-      })
-    }))));
-    return unsubscribe;
-  }, []);
-
->>>>>>> 117902b554fad2eff71f4e6a1845dc4d260e056f
   const selectProfPic = async () => {
     let pickerResult = await ImagePicker.launchImageLibraryAsync({
       allowsEditing: true,
