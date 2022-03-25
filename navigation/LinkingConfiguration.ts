@@ -9,10 +9,39 @@
  
  import { RootStackParamList } from '../types';
  
- const linking: LinkingOptions<RootStackParamList> = {
-   prefixes: [Linking.makeUrl('/')],
-   
- };
+ const linking: LinkingOptions<any> = {
+  prefixes: [Linking.createURL('/'), 'http://localhost:19006'],
+  config: {
+    screens: {
+      Dashboard: {
+        screens: {
+          HomeTab: {
+            screens: {
+              Home: 'Home',
+              PersonalCalendar: 'PersonalCalendar',
+            },
+          },
+          GroupDashboard: {
+            path: 'Group/:gid',
+            parse: {
+              gid: (gid: any) => `${gid}`,
+            },
+            stringify: {
+              gid: (gid: any) => gid,
+            },
+            screens: {
+              Group: 'GroupHome',
+              GroupCalendar: 'GroupCalendar',
+              GroupMembers: 'GroupMembers',
+            },
+          }
+        },
+      },
+      Login: 'Login',
+      Signup: '',
+    },
+  },
+};
  
  export default linking;
  

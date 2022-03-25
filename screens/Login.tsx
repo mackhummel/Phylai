@@ -19,6 +19,7 @@ const Login = (props: any) => {
       onAuthStateChanged(auth, (user) => {
         if (user) {
           props.navigation.replace('Dashboard');
+          console.log(user);
         }
         setLoading(false);
       }),
