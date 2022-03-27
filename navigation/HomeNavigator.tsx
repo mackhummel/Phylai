@@ -51,7 +51,7 @@ function HomeTab(props:any){
       <HomeTab.Screen name="Home" component={Home} />            
       <HomeTab.Screen name="PersonalCalendar" component={PersonalCalendar}/>
     </HomeTab.Navigator>
-   );
+    );
 }
 
 function DashboardStack(props:any){
@@ -106,26 +106,21 @@ function DashboardStack(props:any){
       }
       console.log(groups);
 
-
-      
-  
     return(
         <MyContext.Provider value={data}>
           <Dashboard.Navigator screenOptions={{
             header:()=>(
-              <Appbar.Header>
-                <View style={{backgroundColor:"black", width: 52, height:52, borderRadius:52/2, alignItems:'center',justifyContent:'center'}}>
-                  {user?.photoURL? <Image source={{uri:user.photoURL}} style={{width: 48, height:48, borderRadius:48/2}} /> : null}
-                </View>
-                <Appbar.Content title={user?.displayName}/>
-                <Appbar.Action icon='account-settings'/>
-                <Appbar.Action icon='logout' onPress={signOutUser}/>
-              </Appbar.Header>
-            )
+          <Appbar.Header>
+            <Image source={{ uri: user?.photoURL ? user.photoURL : anon }} style={{ width: 48, height: 48, borderRadius: 48 / 2 }} />
+            <Appbar.Content title={user?.displayName}/>
+            <Appbar.Action icon='account-settings'/>
+            <Appbar.Action icon='logout' onPress={signOutUser}/>
+          </Appbar.Header>
+      )
           }}>
-            <Dashboard.Screen name="HomeTab" component={HomeTab}/>
-            <Dashboard.Screen name="GroupDashboard" component={GroupDashboard}/>
-          </Dashboard.Navigator>
+                <Dashboard.Screen name="HomeTab" component={HomeTab}/>
+                <Dashboard.Screen name="GroupDashboard" component={GroupDashboard}/>
+            </Dashboard.Navigator>
         </MyContext.Provider>
     )
 }
