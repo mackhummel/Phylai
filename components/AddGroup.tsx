@@ -82,7 +82,7 @@ const AddGroup = (props: any) => {
             owner: user?.uid,
             admin:[user?.uid],
             member:[user?.uid],
-            photoUrl: image
+            photoURL: image
 
         }).then(async (res) => {
             // await addDoc(collection(db, 'group',res.id, 'admin'), {
