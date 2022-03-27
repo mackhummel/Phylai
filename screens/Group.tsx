@@ -21,17 +21,26 @@ const Group = (props: any) => {
     const [sendImage, setSendImage] = useState<any>(null);
     const [uploading, setUploading] = useState(false);
 
-   
-    
+
     useEffect(() => {
-       
         const q = query(collectionGroup(db, 'messages'), where("gid", "==", gid), orderBy('timestamp', 'desc'));
         const unsubscribe = onSnapshot(q, (snapshot) => setChat(snapshot.docs.map((doc) => ({ ...doc.data() }))));
         return unsubscribe;
     }, []);
 
 
-    
+    /*const addMember = async (username: any, gid: any) => {
+        //Bad practice, update to only grab single user from firebase
+        const document = doc(db, 'group', gid);
+        const user = (await getDocs(query(collection(db, 'user'), where('username', "==", username), limit(1)))).docs.map((doc) => doc.data());
+        const uid = user[0].uid;
+        await updateDoc(document, {
+            member: arrayUnion(uid)
+        }).then(() => {
+            console.log("Added Member successfully ");
+            setNewMember("");
+        }).catch((error) => console.log("Error in adding member: " + error.message));
+    }*/
     const uploadImage = async (uri: any) => {
         if (uri === null) {
             return null;
@@ -64,6 +73,7 @@ const Group = (props: any) => {
             username: user?.displayName,
             text: message,
             userID: user?.uid,
+            userImg: user?.photoURL,
             gid: gid,
             image: image ? image : null,
         }).then(() => {
@@ -90,66 +100,118 @@ const Group = (props: any) => {
         }
     };
     return (
-        <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}>
-            <SafeAreaView >
-                <View style={styles.container}>
+        <View style={{flex: 1}}>
+            <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}>
+                <SafeAreaView >
+                    <View style={styles.container}>
+                        {admin ? <View style={styles.inputContainer}>
+                        </View> : null}
+                        {sendImage ? <Image source={{ uri: sendImage }} style={{ width: 100, height: 100, resizeMode: "contain", }} /> : null}
+                        <View style={styles.listContainer}>
+                            {chat === undefined ? null : chat.map((doc: any) => { // Group Chat
+                                return (
+                                    <View style={styles.chatContainer}>
+                                        <View style={styles.list} key={doc.id}>
+                                            <Text style={{fontWeight: 'bold'}}>
+                                                <View style={{width:"98%", flexDirection: 'row' }}>
+                                                    <View style={{backgroundColor:"black", width: 25, height:25, borderRadius:25/2, alignItems:'center',justifyContent:'center'}}>
+                                                        {doc?.userImg? <Image source={{uri:doc.userImg}} style={{width: 25, height:25, borderRadius:25/2}} /> : null}
+                                                    </View>
+                                                    <View style={{alignItems:'center', marginLeft: 5, marginBottom: 5, justifyContent:'center'}}>
+                                                        {doc?.username}
+                                                    </View>
+                                                </View>  
+                                                <View style={{ width:'98%', alignItems: 'flex-end', marginBottom: 5, flexDirection: 'row' }}>
+                                                    <Text style={{ fontSize: 10}}>{"\n"}</Text>
+                                                    <Text style={{fontStyle: 'italic', fontSize: 12, marginLeft: 5 }}>
+                                                        {(doc?.timestamp as Timestamp)?.toDate()?.toDateString()}
+                                                    </Text>
+                                                    <Text style={{fontStyle: 'italic', fontSize: 12, marginLeft: 5 }}>
+                                                        {(doc?.timestamp as Timestamp)?.toDate()?.toLocaleTimeString('en-US')}
+                                                    </Text>
 
-                    
-                    <View style={styles.inputContainer}>
-                        <Input
-                            placeholder='Message'
-                            value={message}
-                            onChangeText={(text) => setMessage(text)}
-                        />
+                                                </View>
+                                                
+                                            </Text>
+                                            <Text style={{ fontSize: 10}}>{"\n"}</Text>
+                                            <View style={{ alignItems: 'center', marginBottom: 4, flexDirection: 'row'}}>
+                                        
+                                        
+                                                        <Text style={{ flex: 1, flexShrink: 1, flexWrap: 'wrap' }}>
+                                                            {doc?.text}
+                                                        </Text>
+                                        
+                                        
+                                                <View style={styles.container}>{doc?.image ? <Image source={{ uri: doc.image }} style={{ width: 100, height: 100, resizeMode: "contain", }} /> : null}</View>
+                                            </View>
+                                        </View>
+                                    </View>
+                                );
+                            })
+                        }
+                        </View>
                     </View>
-                    {sendImage ? <Image source={{ uri: sendImage }} style={{ width: 100, height: 100, resizeMode: "contain", }} /> : null}
-                    <Button
-                        title="Add Image"
-                        onPress={() => selectPicture()}
-                    />
-                    <Button
-                        onPress={() => sendMessage()}
-                        title="Send Message"
-                        buttonStyle={{ backgroundColor: 'rgba(111, 202, 186, 1)' }}
-                    />
-                    {chat === undefined ? null : chat.map((doc: any) => {
-                        return (
-                            <View style={styles.list} key={doc.id}>
-                                <Text>
-                                    From: {doc?.username}
-                                </Text>
-                                <Text>{"\n"}</Text>
-                                <View style={{ alignItems: 'center', display: 'flex', marginBottom: 4 }}>
-                                    <Text style={{ textAlign: 'center' }}>
-                                        {doc?.text}
-                                    </Text>
-                                    <View style={styles.container}>{doc?.image ? <Image source={{ uri: doc.image }} style={{ width: 100, height: 100, resizeMode: "contain", }} /> : null}</View>
-                                </View>
-                                <Text>{"\n"}</Text>
-                                <Text>
-                                    {(doc?.timestamp as Timestamp)?.toDate()?.toString()}
-                                </Text>
-                            </View>
-                        );
-                    })
-                    }
-                </View>
-            </SafeAreaView>
-        </ScrollView>
+                </SafeAreaView>
+            </ScrollView>
+            <View style={styles.messageInputContainer}>
+            <Button // Add Image Button
+                            title="Add Image"
+                            onPress={() => selectPicture()}
+            />
+            <Input
+                placeholder='Message'
+                value={message}
+                onChangeText={(text) => setMessage(text)}
+            />
+            <Button
+                            onPress={() => sendMessage()}
+                            icon={{
+                                name: 'paper-plane',
+                                type: 'font-awesome',
+                                size: 15,
+                                color: 'white', // Changes send icon color
+                            }}
+                            title=""
+                            buttonStyle={{ backgroundColor: 'rgba(32, 68, 224, 1)' , width: Platform.OS === 'ios' ? "50%" : "75%", margin: 0}}
+                        />
+            </View>
+        </View>
     )
 }
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
+        
+    },
+    chatContainer: {
+        width: "98%",
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: -16,
+        marginTop: -5,
+        padding: 7,
     },
     list: {
-        borderColor: "black",
-        borderWidth: 2,
-        width: Platform.OS === 'ios' ? "80%" : "40%",
-        margin: 10,
-        padding: 5
+        backgroundColor: '#fff',
+        borderColor: "#fff",
+        borderWidth: 3,
+        borderRadius: 5,
+        padding: 5,
+        marginBottom: 10,
+        marginTop: 10,
+        width: Platform.OS === 'ios' ? "95%" : "100%",
+    },
+    listContainer: {
+        marginBottom: 50,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#fff',
+        minWidth: Platform.OS === 'ios' ? "95%" : "80%",
+        maxWidth: Platform.OS === 'ios' ? "95%" : "80%",
+        borderColor: "#a0a2a3",
+        borderWidth: 5,
+        borderRadius: 5,
     },
     title: {
         fontSize: 27,
@@ -159,6 +221,14 @@ const styles = StyleSheet.create({
     inputContainer: {
         marginTop: 10,
         width: Platform.OS === 'ios' ? "80%" : "40%",
+    },
+    messageInputContainer: {
+        padding: 7,
+        width: Platform.OS === 'ios' ? "80%" : "40%",
+        alignItems: 'center',
+        justifyContent: 'center',
+        alignSelf: 'center',
+        flexDirection: 'row',
     },
     buttonClose: {
         backgroundColor: "#2196F3",
@@ -197,9 +267,6 @@ const styles = StyleSheet.create({
     modalText: {
         marginBottom: 15,
         textAlign: "center"
-    }
+    },
 });
 export default Group;
-
-
-
