@@ -100,13 +100,12 @@ const Group = (props: any) => {
         }
     };
     return (
-        <View style={{flex: 1}}>
+        <View style={{flex: 1, backgroundColor: 'white'}}>
             <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}>
                 <SafeAreaView >
                     <View style={styles.container}>
                         {admin ? <View style={styles.inputContainer}>
                         </View> : null}
-                        {sendImage ? <Image source={{ uri: sendImage }} style={{ width: 100, height: 100, resizeMode: "contain", }} /> : null}
                         <View style={styles.listContainer}>
                             {chat === undefined ? null : chat.map((doc: any) => { // Group Chat
                                 return (
@@ -153,28 +152,44 @@ const Group = (props: any) => {
                     </View>
                 </SafeAreaView>
             </ScrollView>
-            <View style={styles.messageInputContainer}>
-            <Button // Add Image Button
-                            title="Add Image"
-                            onPress={() => selectPicture()}
-            />
-            <Input
-                placeholder='Message'
-                value={message}
-                onChangeText={(text) => setMessage(text)}
-            />
-            <Button
+            <View style={{backgroundColor: 'rgba(32, 68, 224, 1)'}}>
+                <View style={styles.messageInputContainer}>
+                    {sendImage ? <Image source={{ uri: sendImage }} style={{ width: 50, height: 50, marginRight: 15, resizeMode: "contain", }} /> : null}
+                    <Button // Add Image Button
+                        onPress={() => selectPicture()}
+                        icon={{
+                            name: 'image',
+                            type: 'font-awesome',
+                            size: 15,
+                            color: 'rgba(32, 68, 224, 1)', // Changes send icon color
+                        }}
+                        title=""
+                        buttonStyle={{ backgroundColor: 'white' , height: 40, width: 40, margin: 0, borderRadius: 50}}
+                    />
+                    <View>
+                        <Input
+                            placeholder='Send to group..'
+                            value={message}
+                            onChangeText={(text) => setMessage(text)}
+                            inputStyle={{backgroundColor: 'white', marginTop: 10, borderRadius: 15, paddingHorizontal: 10, width: Platform.OS === 'ios' ? "70%" : "80%"}}
+                        />
+                    </View>
+                    <Button
                             onPress={() => sendMessage()}
                             icon={{
                                 name: 'paper-plane',
                                 type: 'font-awesome',
                                 size: 15,
-                                color: 'white', // Changes send icon color
+                                color: 'rgba(32, 68, 224, 1)', // Changes send icon color
                             }}
                             title=""
-                            buttonStyle={{ backgroundColor: 'rgba(32, 68, 224, 1)' , width: Platform.OS === 'ios' ? "50%" : "75%", margin: 0}}
+                            buttonStyle={{ backgroundColor: 'white' , height: 40, width: 40, margin: 0, borderRadius: 50}}
                         />
+                </View>
+
+
             </View>
+                
         </View>
     )
 }
@@ -182,6 +197,7 @@ const styles = StyleSheet.create({
     container: {
         alignItems: 'center',
         justifyContent: 'center',
+        backgroundColor: 'white',
         
     },
     chatContainer: {
@@ -209,7 +225,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         minWidth: Platform.OS === 'ios' ? "95%" : "80%",
         maxWidth: Platform.OS === 'ios' ? "95%" : "80%",
-        borderColor: "#a0a2a3",
+        borderColor: "rgba(0, 0, 0, 0)",
         borderWidth: 5,
         borderRadius: 5,
     },
@@ -223,7 +239,7 @@ const styles = StyleSheet.create({
         width: Platform.OS === 'ios' ? "80%" : "40%",
     },
     messageInputContainer: {
-        padding: 7,
+        padding: 10,
         width: Platform.OS === 'ios' ? "80%" : "40%",
         alignItems: 'center',
         justifyContent: 'center',
