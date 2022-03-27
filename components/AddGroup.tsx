@@ -1,4 +1,4 @@
-import { StyleSheet, View, Modal, Pressable, Text, Platform } from 'react-native';
+import { StyleSheet, View, Modal, Pressable, Image, Text, Platform } from 'react-native';
 import React, { useState } from "react";
 import { Input } from 'react-native-elements';
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/storage';
@@ -108,7 +108,14 @@ const AddGroup = (props: any) => {
             >
                 <View style={styles.centeredView}>
                     <View style={styles.modalView}>
-                        <Text style={styles.modalText}>Create New Group</Text>
+                        <Text style={styles.modalText}>Create New Group</Text>   
+                        <View style={styles.imgContainer}>
+                            {
+                                profPic 
+                                ? <Image source={{uri:profPic}} style={{ width: 60, height: 60, borderRadius: 60 / 2 }} />
+                                : <Image source={anon} style={{ width: 60, height: 60, borderRadius: 60 / 2 }
+                            } />}       
+                        </View> 
 
                         
                         <Input
