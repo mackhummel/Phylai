@@ -3,6 +3,7 @@ import { arrayUnion, collection, collectionGroup, doc, getDocs, onSnapshot, orde
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, Platform, SectionList, Image } from "react-native";
 import { Button, Input } from "react-native-elements";
+import { Appbar } from "react-native-paper";
 import { db } from '../config/firebase';
 const anon = require('../assets/anon.png');
 
@@ -14,11 +15,19 @@ const GroupMember = (props: any) => {
     const [members, setMembers] = useState<any>([]);
     const [admins, setAdmins] = useState<any>([]);
     const [newMember, setNewMember] = useState("");
-    const admin = props.admin
+    const admin = props.admin;
 
     useEffect(() => {
-        // const adminArray  = props.route.params.adminArray.map((admin:any)=>admin.uid as string);
-        // const memberArray = props.route.params.memberArray.map((member:any)=>member.uid as string);
+
+        props.navigation.setOptions({
+            header: () => (
+                <Appbar.Header>
+                    <Appbar.BackAction onPress={() => props.navBack()} />
+                    <Appbar.Content title={group.data.name + ' Members'}/>
+                </Appbar.Header>
+            )
+        });
+
         const qAdmin = query(collection(db, 'user'), where('uid', "in", group.data.admin));
         const unsubscribeAdmins = onSnapshot(qAdmin, (snapshot) => setAdmins(snapshot.docs.map((doc) => ({ ...doc.data() }))));
         const qMember = query(collection(db, 'user'), where('uid', "in", group.data.member));

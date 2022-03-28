@@ -25,6 +25,17 @@ const Group = (props: any) => {
 
 
     useEffect(() => {
+        props.navigation.setOptions({
+            header: () => (
+                <Appbar.Header>
+                    <Appbar.BackAction onPress={() => props.navigation.navigate("HomeTab")} />
+                    <Image source={{ uri: group.data.photoURL ? group.data.photoURL : null }} style={{ width: 48, height: 48, borderRadius: 48 / 4 }} />
+                    <Appbar.Content title={group.data.name} />
+                    <Appbar.Action icon='account-group' onPress={() => props.navigation.replace('GroupMember')} />
+                    <Appbar.Action icon='calendar' onPress={() => props.navigation.replace('GroupCalendar')} />
+                </Appbar.Header>
+            )
+        });
         const q = query(collectionGroup(db, 'messages'), where("gid", "==", group.id), orderBy('timestamp', 'desc'));
         const unsubscribe = onSnapshot(q, (snapshot) => setChat(snapshot.docs.map((doc) => ({ ...doc.data() }))));
         return unsubscribe;

@@ -132,7 +132,7 @@ const CalendarComponent = (props: any) => {
                             onChangeText={(text) => setEventName(text)}
                             />
                             <Input
-                                placeholder='Event Date (Datestring format)'
+                                placeholder='Event Date (yyyy-mm-dd)'
                                 value={newDate}
                                 onChangeText={(text) => setNewDate(text)}
                             />

@@ -1,7 +1,7 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createStackNavigator } from "@react-navigation/stack";
 import PersonalCalendar from "../screens/PersonalCalendar";
-import { Icon } from "react-native-elements";
+import { colors, Icon } from "react-native-elements";
 import Home from "../screens/Home";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, View, Image } from "react-native";
@@ -23,13 +23,13 @@ const Dashboard = createNativeStackNavigator();
 const anon = require('../assets/anon.png');
 
 function HomeTab(props:any){
-  const { colors } = useTheme();
+  const theme = useTheme();
   const user = auth.currentUser;
   const HomeTab = createBottomTabNavigator();
   const [index, setIndex] = useState(0);
   const [routes] = useState([
-    {key:'home', title:'Groups', icon:'account-group', color:colors.primary },
-    {key:'calendar', title:'Calendar', icon:'calendar-month',  color: colors.text}
+    {key:'home', title:'Groups', icon:'account-group' },
+    {key:'calendar', title:'Calendar', icon:'calendar-month'}
   ])
   const renderScene = BottomNavigation.SceneMap({
     home: ()=><Home {...props}/>,
@@ -60,8 +60,8 @@ function HomeTab(props:any){
       navigationState={{index,routes}}
       onIndexChange={setIndex}
       renderScene={renderScene}
-      barStyle={{height:70}}
       shifting={true}
+      theme={theme}
     />
     );
 }
@@ -99,7 +99,7 @@ function DashboardStack(props:any){
           width: '100%',
           alignItems: 'center',
           justifyContent: 'center'}}>
-          <ActivityIndicator color={"#2044E0"} size="large" />
+          <ActivityIndicator color={colors.primary} size="large" />
         </View>)
       }
 
@@ -121,7 +121,7 @@ function DashboardStack(props:any){
         <MyContext.Provider value={data}>
           <Dashboard.Navigator screenOptions={{
             header:()=>(
-          <Appbar.Header>
+          <Appbar.Header >
             <Image source={{ uri: user?.photoURL ? user.photoURL : anon }} style={{ width: 48, height: 48, borderRadius: 48 / 2 }} />
             <Appbar.Content title={user?.displayName}/>
             <Appbar.Action icon='account-circle'/>

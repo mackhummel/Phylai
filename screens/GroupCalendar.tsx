@@ -1,6 +1,7 @@
 import { collectionGroup, onSnapshot, orderBy, query, where } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { View , Text, ScrollView, Platform} from "react-native";
+import { Appbar } from "react-native-paper";
 import CalendarComponent from '../components/CalendarComponent';
 import { db } from "../config/firebase";
 
@@ -11,7 +12,14 @@ const GroupCalendar = (props:any) => {
   const group = props.group;
 
   useEffect(() => {
-        
+    props.navigation.setOptions({
+      header: () => (
+          <Appbar.Header>
+              <Appbar.BackAction onPress={() => props.navBack()} />
+              <Appbar.Content title={group.data.name + ' Calendar'}/>
+          </Appbar.Header>
+      )
+   });
     //poll changes in events
     const q2 = query(collectionGroup(db, 'events'), where("gid", "==", group.id), orderBy('timestamp', 'desc'));
     const unsubscribeEvents = onSnapshot(q2, (snapshot) => setEvents(

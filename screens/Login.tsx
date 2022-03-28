@@ -43,7 +43,7 @@ const Login = (props: any) => {
     </View>)
   }
   return (
-    <View style={{backgroundColor:colors.surface,
+    <View style={{backgroundColor:colors.background,
       flex: 1,
       width: '100%',
       alignItems: 'center',
