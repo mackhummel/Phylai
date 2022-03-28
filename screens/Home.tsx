@@ -12,7 +12,7 @@ import { db } from '../config/firebase';
 import * as ImagePicker from "expo-image-picker";
 import AddGroup from '../components/AddGroup';
 import { MyContext } from '../constants/context';
-import { IconButton, List, useTheme, Button } from 'react-native-paper';
+import { IconButton, List, useTheme, Button, Divider } from 'react-native-paper';
 const anon = require('../assets/anon.png');
 
 
@@ -78,24 +78,16 @@ const Home = (props: any) => {
   }
 
 
-
   return (
     <View style={{ flex: 1 }}>
       <View style={{ flex: 3 }}>
         <ScrollView >
-          {/* {groups ? groups.map((group: any) => {
-              return (<View style={styles.list} key={group.id} >
-                <Button title={group.data.name} onPress={() =>
-                  props.navigation.navigate('GroupDashboard', { gid: group.id, name: group.data.name, admin: group.data.admin.includes(user?.uid) as boolean, adminArray: group.data.admin, memberArray: group.data.member })
-                }
-                />
-              </View>);
-            }) : null} */}
+
 
           {groups ? <List.Section>{groups.map((group: any) => {
-            return (<List.Item
+            return (<><List.Item
               title={group.data.name}
-              onPress={() => props.navigation.navigate('GroupDashboard', { gid: group.id, photoURL: group.data.photoURL ,name: group.data.name, admin: group.data.admin.includes(user?.uid) as boolean, adminArray: group.data.admin, memberArray: group.data.member })}
+              onPress={() => props.navigation.navigate('GroupDashboard', { gid: group.id })}
               left={() => <Image source={{uri: group.data.photoURL? group.data.photoURL : anon }} style={{ width: 48, height: 48, borderRadius: 48 / 4 }} />}
               right={() => (
                 <>
@@ -106,7 +98,11 @@ const Home = (props: any) => {
                   <IconButton icon='chevron-right'></IconButton>
                 </>
               )}
-            ></List.Item>);
+            >
+            
+            </List.Item>
+            <Divider style={{height:2}}/></>
+            );
           })}</List.Section> : null}
         </ScrollView>
         <View style={styles.container}>

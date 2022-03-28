@@ -1,6 +1,6 @@
 import { collectionGroup, DocumentData, getDocs, onSnapshot, orderBy, query, where } from "firebase/firestore";
 import React, { useContext, useEffect, useState } from "react";
-import { View , Text} from "react-native";
+import { View , Text, ScrollView, Platform} from "react-native";
 import CalendarComponent from '../components/CalendarComponent';
 import { db } from "../config/firebase";
 import { MyContext } from "../constants/context";
@@ -12,7 +12,6 @@ const PersonalCalendar = (props:any) => {
     const { groups, uid } = useContext(MyContext);
     
 
-    console.log(groups);
 
     useEffect(() => {
         groups.forEach(async (group: any) => {
@@ -38,9 +37,11 @@ const PersonalCalendar = (props:any) => {
 
    
     return (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <CalendarComponent personal={true} events={events} uid={uid}/>
-        </View>
+        <ScrollView contentContainerStyle={{alignItems:'center', justifyContent: 'center'}}>
+            <View style={{width: Platform.OS === 'web' ? '50%': '100%', flex:1,}}>
+                <CalendarComponent personal={true} events={events} uid={uid}/>
+            </View>
+        </ScrollView>
     );
   }
   

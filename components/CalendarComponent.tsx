@@ -6,10 +6,11 @@ import { getAuth } from 'firebase/auth';
 import { db } from '../config/firebase';
 import moment from 'moment';
 import { addDoc, collection, collectionGroup, doc, getDoc, onSnapshot, orderBy, query, Timestamp, where } from 'firebase/firestore';
+import { IconButton, useTheme } from 'react-native-paper';
 
 const CalendarComponent = (props: any) => {
     const { gid, events, admin, personal, uid } = props;
-
+    const{colors} = useTheme();
     const [eventName, setEventName] = useState('');
     const [newDate, setNewDate] = useState('');
     const [eventInfo, setEventInfo] = useState('');
@@ -86,7 +87,6 @@ const CalendarComponent = (props: any) => {
         //filter selected events
         const filteredEvents = events.filter((event: any) => day === event.timestamp);
 
-        console.log(filteredEvents);
 
 
         return (
@@ -121,56 +121,70 @@ const CalendarComponent = (props: any) => {
 
 
     return (
-        <View style={styles.list}>
-            <Fragment>
-                {(admin || personal) &&
-                    <View>
-                        <Input
-                        placeholder='Event Name'
-                        value={eventName}
-                        onChangeText={(text) => setEventName(text)}
-                        />
-                        <Input
-                            placeholder='Event Date (Datestring format)'
-                            value={newDate}
-                            onChangeText={(text) => setNewDate(text)}
-                        />
-                        <Input
-                            placeholder='Event Location'
-                            value={eventLocation}
-                            onChangeText={(text) => setEventLocation(text)}
-                        />
-                        <Input
-                            placeholder='Event Information'
-                            value={eventInfo}
-                            onChangeText={(text) => setEventInfo(text)}
-                        />
-                        <Button
-                            onPress={() => addEvent()}
-                            title="Add Event"
-                            buttonStyle={{ backgroundColor: 'rgba(111, 202, 186, 1)' }}
-                        />
-                    </View>
-                }
-                <Calendar
-                    enableSwipeMonths={true}
-                    current={today}
-                    //style={styles.calendar}
-                    onDayPress={onDayPress}
-                    hideArrows={false}
-                    markedDates={{
-                        ...markedObjects, [selected]: {
-                            selected: true,
-                            disableTouchEvent: true,
-                            selectedColor: 'blue',
-                            selectedTextColor: 'white'
+        <View >
+            <View style={styles.list}>
+                <Fragment>
+                    {(admin || personal) &&
+                        <View>
+                            <Input
+                            placeholder='Event Name'
+                            value={eventName}
+                            onChangeText={(text) => setEventName(text)}
+                            />
+                            <Input
+                                placeholder='Event Date (Datestring format)'
+                                value={newDate}
+                                onChangeText={(text) => setNewDate(text)}
+                            />
+                            <Input
+                                placeholder='Event Location'
+                                value={eventLocation}
+                                onChangeText={(text) => setEventLocation(text)}
+                            />
+                            <Input
+                                placeholder='Event Information'
+                                value={eventInfo}
+                                onChangeText={(text) => setEventInfo(text)}
+                            />
+                            <Button
+                                onPress={() => addEvent()}
+                                title="Add Event"
+                                buttonStyle={{ backgroundColor: 'rgba(111, 202, 186, 1)' }}
+                            />
+                        </View>
+                    }
+                    <Calendar
+                        enableSwipeMonths={true}
+                        current={today}
+                        //style={styles.calendar}
+                        renderArrow={(direction) => {
+                            if (direction == "left")
+                              return (
+                                <IconButton icon='arrow-left-bold-outline' color={colors.primary} />
+                              );
+                            if (direction == "right")
+                              return (
+                                
+                                  <IconButton icon='arrow-right-bold-outline' color={colors.primary}/>
+                               
+                              );
+                          }}
+                        onDayPress={onDayPress}
+                        hideArrows={false}
+                        markedDates={{
+                            ...markedObjects, [selected]: {
+                                selected: true,
+                                disableTouchEvent: true,
+                                selectedColor: 'blue',
+                                selectedTextColor: 'white'
+                            }
                         }
-                    }
-                    }
-                    theme={{ arrowColor: 'blue' }}
-                />
-            </Fragment>
-            {displayEvents(selected)}
+                        }
+                        theme={{ arrowColor: 'blue' }}
+                    />
+                </Fragment>
+                {displayEvents(selected)}
+            </View>
         </View>
 
     )
@@ -185,7 +199,7 @@ const styles = StyleSheet.create({
         borderColor: "black",
         borderWidth: 2,
         margin: 10,
-        padding: 5
+        padding: 5,
     },
     title: {
         fontSize: 27,

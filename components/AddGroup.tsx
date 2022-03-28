@@ -112,8 +112,8 @@ const AddGroup = (props: any) => {
                         <View style={styles.imgContainer}>
                             {
                                 profPic 
-                                ? <Image source={{uri:profPic}} style={{ width: 60, height: 60, borderRadius: 60 / 2 }} />
-                                : <Image source={anon} style={{ width: 60, height: 60, borderRadius: 60 / 2 }
+                                ? <Image source={{uri:profPic}} style={{ width: 60, height: 60, borderRadius: 60 / 4 }} />
+                                : <Image source={anon} style={{ width: 60, height: 60, borderRadius: 60 / 4 }
                             } />}       
                         </View> 
 
@@ -146,7 +146,9 @@ const styles = StyleSheet.create({
     centeredView: {
         flex: 1,
         justifyContent: "center",
-        padding:20
+        alignContent:'center',
+        padding:20,
+        
     },
     modalView: {
         backgroundColor: "white",
@@ -160,7 +162,8 @@ const styles = StyleSheet.create({
         },
         shadowOpacity: 0.25,
         shadowRadius: 4,
-        elevation: 5
+        elevation: 5,
+        justifyContent:'center',
     },
     button: {
         borderRadius: 20,

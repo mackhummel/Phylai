@@ -1,4 +1,4 @@
-import { Platform, ScrollView, StyleSheet, View, Image, Dimensions, Modal, Pressable } from 'react-native';
+import { Platform, ScrollView, StyleSheet, View, Image } from 'react-native';
 import { collection, addDoc, serverTimestamp, query, Timestamp, onSnapshot, orderBy, getDoc, getDocs, collectionGroup, where, updateDoc, arrayUnion, doc, limit } from 'firebase/firestore';
 import { getAuth, signOut } from "firebase/auth";
 import React, { useEffect, useLayoutEffect, useState } from 'react';
@@ -10,20 +10,22 @@ import { Button, Input, Text } from 'react-native-elements';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { db } from '../config/firebase';
 import * as ImagePicker from "expo-image-picker";
+import { Appbar, TextInput } from 'react-native-paper';
 
 const Group = (props: any) => {
     const auth = getAuth();
-    const { gid, name, admin } = props.route.params;
+    const group = props.group;
     const user = auth.currentUser;
     const [message, setMessage] = useState("");
     const [chat, setChat] = useState<any>([]);
     const [newMember, setNewMember] = useState("");
     const [sendImage, setSendImage] = useState<any>(null);
     const [uploading, setUploading] = useState(false);
+    const admin = props.admin
 
 
     useEffect(() => {
-        const q = query(collectionGroup(db, 'messages'), where("gid", "==", gid), orderBy('timestamp', 'desc'));
+        const q = query(collectionGroup(db, 'messages'), where("gid", "==", group.id), orderBy('timestamp', 'desc'));
         const unsubscribe = onSnapshot(q, (snapshot) => setChat(snapshot.docs.map((doc) => ({ ...doc.data() }))));
         return unsubscribe;
     }, []);
@@ -68,13 +70,13 @@ const Group = (props: any) => {
             return;
         }
         const image = await uploadImage(sendImage);
-        await addDoc(collection(db, "group", gid, "messages"), {
+        await addDoc(collection(db, "group", group.id, "messages"), {
             timestamp: serverTimestamp(),
             username: user?.displayName,
             text: message,
             userID: user?.uid,
             userImg: user?.photoURL,
-            gid: gid,
+            gid: group.id,
             image: image ? image : null,
         }).then(() => {
             console.log("Message successfully sent")
@@ -111,16 +113,18 @@ const Group = (props: any) => {
                                 return (
                                     <View style={styles.chatContainer}>
                                         <View style={styles.list} key={doc.id}>
-                                            <Text style={{fontWeight: 'bold'}}>
+                                            
                                                 <View style={{width:"98%", flexDirection: 'row' }}>
                                                     <View style={{backgroundColor:"black", width: 25, height:25, borderRadius:25/2, alignItems:'center',justifyContent:'center'}}>
                                                         {doc?.userImg? <Image source={{uri:doc.userImg}} style={{width: 25, height:25, borderRadius:25/2}} /> : null}
                                                     </View>
                                                     <View style={{alignItems:'center', marginLeft: 5, marginBottom: 5, justifyContent:'center'}}>
-                                                        {doc?.username}
+                                                        <Text>{doc?.username}</Text>
                                                     </View>
                                                 </View>  
-                                                <View style={{ width:'98%', alignItems: 'flex-end', marginBottom: 5, flexDirection: 'row' }}>
+                                                
+                                                
+                                                <View style={{ width:'98%', alignItems: 'flex-end', marginBottom: 5, flexDirection: 'row', flex:1 }}>
                                                     <Text style={{ fontSize: 10}}>{"\n"}</Text>
                                                     <Text style={{fontStyle: 'italic', fontSize: 12, marginLeft: 5 }}>
                                                         {(doc?.timestamp as Timestamp)?.toDate()?.toDateString()}
@@ -130,8 +134,6 @@ const Group = (props: any) => {
                                                     </Text>
 
                                                 </View>
-                                                
-                                            </Text>
                                             <Text style={{ fontSize: 10}}>{"\n"}</Text>
                                             <View style={{ alignItems: 'center', marginBottom: 4, flexDirection: 'row'}}>
                                         
@@ -141,7 +143,7 @@ const Group = (props: any) => {
                                                         </Text>
                                         
                                         
-                                                <View style={styles.container}>{doc?.image ? <Image source={{ uri: doc.image }} style={{ width: 100, height: 100, resizeMode: "contain", }} /> : null}</View>
+                                                <View style={styles.container}>{doc?.image ? <Image source={{ uri: doc.image }} style={{ width: 100, height: 100,flex:1, resizeMode: "contain", }} /> : null}</View>
                                             </View>
                                         </View>
                                     </View>
@@ -152,7 +154,13 @@ const Group = (props: any) => {
                     </View>
                 </SafeAreaView>
             </ScrollView>
-            <View style={{backgroundColor: 'rgba(32, 68, 224, 1)'}}>
+                <Appbar style={{ flexWrap: "wrap", minHeight:45, }}>
+                {sendImage ? <Image source={{ uri: sendImage }} style={{ width: 50, height: 50, resizeMode: "contain", marginLeft:20 }} /> : null}
+                    <Appbar.Action icon='image' onPress={() => selectPicture()}/>
+                    <TextInput style={{flex:1, height:38}} autoComplete={false} onChangeText={(text) => setMessage(text)}/>
+                    <Appbar.Action icon = 'send' onPress={() => sendMessage()}/>
+                </Appbar>
+            {/* <View style={{backgroundColor: 'rgba(32, 68, 224, 1)'}}>
                 <View style={styles.messageInputContainer}>
                     {sendImage ? <Image source={{ uri: sendImage }} style={{ width: 50, height: 50, marginRight: 15, resizeMode: "contain", }} /> : null}
                     <Button // Add Image Button
@@ -188,7 +196,7 @@ const Group = (props: any) => {
                 </View>
 
 
-            </View>
+            </View> */}
                 
         </View>
     )

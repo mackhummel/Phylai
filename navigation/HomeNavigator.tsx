@@ -6,7 +6,7 @@ import Home from "../screens/Home";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, View, Image } from "react-native";
 import AddGroup from "../components/AddGroup";
-import { IconButton, Appbar, Button } from "react-native-paper";
+import { IconButton, Appbar, Button, BottomNavigation, useTheme } from "react-native-paper";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "../config/firebase";
 import { db } from '../config/firebase';
@@ -23,9 +23,18 @@ const Dashboard = createNativeStackNavigator();
 const anon = require('../assets/anon.png');
 
 function HomeTab(props:any){
+  const { colors } = useTheme();
   const user = auth.currentUser;
   const HomeTab = createBottomTabNavigator();
-
+  const [index, setIndex] = useState(0);
+  const [routes] = useState([
+    {key:'home', title:'Groups', icon:'account-group', color:colors.primary },
+    {key:'calendar', title:'Calendar', icon:'calendar-month',  color: colors.text}
+  ])
+  const renderScene = BottomNavigation.SceneMap({
+    home: ()=><Home {...props}/>,
+    calendar: PersonalCalendar
+  })
   // const signOutUser = () => {
   //   signOut(auth).then(() => {
   //     props.navigation.replace("Login")
@@ -47,10 +56,13 @@ function HomeTab(props:any){
     //       </Appbar.Header>
     //   )
     // }}>
-    <HomeTab.Navigator screenOptions={{headerShown: false}}>
-      <HomeTab.Screen name="Home" component={Home} />            
-      <HomeTab.Screen name="PersonalCalendar" component={PersonalCalendar}/>
-    </HomeTab.Navigator>
+    <BottomNavigation 
+      navigationState={{index,routes}}
+      onIndexChange={setIndex}
+      renderScene={renderScene}
+      barStyle={{height:70}}
+      shifting={true}
+    />
     );
 }
 
@@ -104,7 +116,6 @@ function DashboardStack(props:any){
         groups: groups,
         uid: user?.uid
       }
-      console.log(groups);
 
     return(
         <MyContext.Provider value={data}>
@@ -113,10 +124,11 @@ function DashboardStack(props:any){
           <Appbar.Header>
             <Image source={{ uri: user?.photoURL ? user.photoURL : anon }} style={{ width: 48, height: 48, borderRadius: 48 / 2 }} />
             <Appbar.Content title={user?.displayName}/>
-            <Appbar.Action icon='account-settings'/>
+            <Appbar.Action icon='account-circle'/>
             <Appbar.Action icon='logout' onPress={signOutUser}/>
           </Appbar.Header>
       )
+              
           }}>
                 <Dashboard.Screen name="HomeTab" component={HomeTab}/>
                 <Dashboard.Screen name="GroupDashboard" component={GroupDashboard}/>
@@ -125,4 +137,3 @@ function DashboardStack(props:any){
     )
 }
 export default DashboardStack;
-

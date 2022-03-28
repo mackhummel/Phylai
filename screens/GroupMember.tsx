@@ -1,3 +1,4 @@
+import { getAuth } from "firebase/auth";
 import { arrayUnion, collection, collectionGroup, doc, getDocs, onSnapshot, orderBy, query, updateDoc, where } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, Platform, SectionList, Image } from "react-native";
@@ -6,16 +7,21 @@ import { db } from '../config/firebase';
 const anon = require('../assets/anon.png');
 
 const GroupMember = (props: any) => {
-    const { admin, gid, adminArray } = props.route.params
+    //const { admin, gid, adminArray } = props.route.params
+    
+    const group = props.group;
+    console.log(group);
     const [members, setMembers] = useState<any>([]);
     const [admins, setAdmins] = useState<any>([]);
     const [newMember, setNewMember] = useState("");
+    const admin = props.admin
+
     useEffect(() => {
         // const adminArray  = props.route.params.adminArray.map((admin:any)=>admin.uid as string);
         // const memberArray = props.route.params.memberArray.map((member:any)=>member.uid as string);
-        const qAdmin = query(collection(db, 'user'), where('uid', "in", props.route.params.adminArray));
+        const qAdmin = query(collection(db, 'user'), where('uid', "in", group.data.admin));
         const unsubscribeAdmins = onSnapshot(qAdmin, (snapshot) => setAdmins(snapshot.docs.map((doc) => ({ ...doc.data() }))));
-        const qMember = query(collection(db, 'user'), where('uid', "in", props.route.params.memberArray));
+        const qMember = query(collection(db, 'user'), where('uid', "in", group.data.member));
         const unsubscribeMembers = onSnapshot(qMember, (snapshot) => setMembers(snapshot.docs.map((doc) => ({ ...doc.data() }))));
 
         return () => {
@@ -47,7 +53,7 @@ const GroupMember = (props: any) => {
                     onChangeText={(text: string) => setNewMember(text)}
                 />
                 <Button
-                    onPress={() => addMember(newMember, gid)}
+                    onPress={() => addMember(newMember, group.id)}
                     title="Add Member"
                     buttonStyle={{ backgroundColor: 'rgba(111, 202, 186, 1)' }}
                 />
@@ -57,7 +63,7 @@ const GroupMember = (props: any) => {
                 <SectionList
                     sections={[
                         { title: 'Admins', data: admins },
-                        { title: 'Members', data: members.filter((doc:any)=>!adminArray.includes(doc.uid)) },
+                        { title: 'Members', data: members.filter((doc:any)=>!group.data.admin.includes(doc.uid)) },
                     ]}
                     renderItem={({ item }) => <View style={styles.row}>
                         <View style={styles.imgContainer}>{item?.photoURL? <Image
