@@ -11,10 +11,11 @@ LogBox.ignoreLogs(['Warning: ...']);
 //   dark:true,
 //   colors: {
 //     ...DarkTheme.colors,
-//     primary: '#2044E0',
-//     accent: 'white',
-//     text:'white',
-//     surface:'black'
+//     primary: '#4B9CD3',
+//     accent: 'blue',
+//     surface:'#4B9CD3',
+//     background:'black',
+//     text: 'white'
 //   },
 // };
 const theme = {
@@ -22,7 +23,7 @@ const theme = {
   dark: false,
   colors: {
     ...DefaultTheme.colors,
-    primary: '#2044E0',
+    primary: '#4B9CD3',
     accent: 'white',
     text: 'black',
 

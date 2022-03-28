@@ -155,10 +155,9 @@ const SignUp = (props: any) => {
 
 
         <View style={{
-           alignItems: 'center',
-           justifyContent: 'center',
-           flexDirection:'row',
-          
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexDirection:'row', 
         }}><IconButton icon='image-plus'  size={40} onPress={() => selectProfPic()}> </IconButton><Text style={{color:colors.text}}>Add Profile Photo</Text></View>
 
 

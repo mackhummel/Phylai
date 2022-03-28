@@ -1,13 +1,12 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createStackNavigator } from "@react-navigation/stack";
-
 import PersonalCalendar from "../screens/PersonalCalendar";
-import { Icon } from "react-native-elements";
+import { colors, Icon } from "react-native-elements";
 import Home from "../screens/Home";
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Button, View } from "react-native";
+import { ActivityIndicator, View, Image } from "react-native";
 import AddGroup from "../components/AddGroup";
-import { IconButton } from "react-native-paper";
+import { IconButton, Appbar, Button, BottomNavigation, useTheme } from "react-native-paper";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "../config/firebase";
 import { db } from '../config/firebase';
@@ -18,35 +17,53 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
 import GroupDashboard from "./GroupNavigator";
 
-const Dashboard = createNativeStackNavigator();
 
+
+const Dashboard = createNativeStackNavigator();
+const anon = require('../assets/anon.png');
 
 function HomeTab(props:any){
+  const theme = useTheme();
+  const user = auth.currentUser;
   const HomeTab = createBottomTabNavigator();
-
-  const signOutUser = () => {
-    signOut(auth).then(() => {
-      props.navigation.replace("Login")
-      console.log("Logout Successful")
-    }).catch((error) => {
-      console.log("Logout error: ", error.message);
-    })
-  }
+  const [index, setIndex] = useState(0);
+  const [routes] = useState([
+    {key:'home', title:'Groups', icon:'account-group' },
+    {key:'calendar', title:'Calendar', icon:'calendar-month'}
+  ])
+  const renderScene = BottomNavigation.SceneMap({
+    home: ()=><Home {...props}/>,
+    calendar: PersonalCalendar
+  })
+  // const signOutUser = () => {
+  //   signOut(auth).then(() => {
+  //     props.navigation.replace("Login")
+  //     console.log("Logout Successful")
+  //   }).catch((error) => {
+  //     console.log("Logout error: ", error.message);
+  //   })
+  // }
 
 
   return (
-    <HomeTab.Navigator screenOptions={{
-          headerRight: () => (
-            <>
-              <AddGroup />
-              <IconButton icon='logout' onPress={signOutUser} />
-              </>
-          ),
-      }}>
-      <HomeTab.Screen name="Home" component={Home} />            
-      <HomeTab.Screen name="PersonalCalendar" component={PersonalCalendar}/>
-    </HomeTab.Navigator>
-   );
+    // <HomeTab.Navigator screenOptions={{
+    //   header:()=>(
+    //       <Appbar.Header>
+    //         <Image source={{ uri: user?.photoURL ? user.photoURL : anon }} style={{ width: 48, height: 48, borderRadius: 48 / 2 }} />
+    //         <Appbar.Content title={user?.displayName}/>
+    //         <Appbar.Action icon='account-settings'/>
+    //         <Appbar.Action icon='logout' onPress={signOutUser}/>
+    //       </Appbar.Header>
+    //   )
+    // }}>
+    <BottomNavigation 
+      navigationState={{index,routes}}
+      onIndexChange={setIndex}
+      renderScene={renderScene}
+      shifting={true}
+      theme={theme}
+    />
+    );
 }
 
 function DashboardStack(props:any){
@@ -82,22 +99,37 @@ function DashboardStack(props:any){
           width: '100%',
           alignItems: 'center',
           justifyContent: 'center'}}>
-          <ActivityIndicator color={"#2044E0"} size="large" />
+          <ActivityIndicator color={colors.primary} size="large" />
         </View>)
+      }
+
+      const signOutUser = () => {
+        signOut(auth).then(() => {
+          props.navigation.replace("Login")
+          console.log("Logout Successful")
+        }).catch((error) => {
+          console.log("Logout error: ", error.message);
+        })
       }
 
       const data = {
         groups: groups,
         uid: user?.uid
       }
-      console.log(groups);
 
-
-      
-  
     return(
         <MyContext.Provider value={data}>
-           <Dashboard.Navigator screenOptions={{headerShown: false}}>
+          <Dashboard.Navigator screenOptions={{
+            header:()=>(
+          <Appbar.Header >
+            <Image source={{ uri: user?.photoURL ? user.photoURL : anon }} style={{ width: 48, height: 48, borderRadius: 48 / 2 }} />
+            <Appbar.Content title={user?.displayName}/>
+            <Appbar.Action icon='account-circle'/>
+            <Appbar.Action icon='logout' onPress={signOutUser}/>
+          </Appbar.Header>
+      )
+              
+          }}>
                 <Dashboard.Screen name="HomeTab" component={HomeTab}/>
                 <Dashboard.Screen name="GroupDashboard" component={GroupDashboard}/>
             </Dashboard.Navigator>
@@ -105,4 +137,3 @@ function DashboardStack(props:any){
     )
 }
 export default DashboardStack;
-

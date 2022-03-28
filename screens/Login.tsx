@@ -19,7 +19,7 @@ const Login = (props: any) => {
       onAuthStateChanged(auth, (user) => {
         if (user) {
           props.navigation.replace('Dashboard');
-          console.log(user);
+          
         }
         setLoading(false);
       }),
@@ -43,7 +43,7 @@ const Login = (props: any) => {
     </View>)
   }
   return (
-    <View style={{backgroundColor:colors.surface,
+    <View style={{backgroundColor:colors.background,
       flex: 1,
       width: '100%',
       alignItems: 'center',
