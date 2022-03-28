@@ -124,12 +124,12 @@ const Group = (props: any) => {
                                                 </View>  
                                                 
                                                 
-                                                <View style={{ width:'98%', alignItems: 'flex-end', marginBottom: 5, flexDirection: 'row', flex:1 }}>
-                                                    <Text style={{ fontSize: 10}}>{"\n"}</Text>
-                                                    <Text style={{fontStyle: 'italic', fontSize: 12, marginLeft: 5 }}>
+                                                <View style={{ width:'98%', alignItems: 'flex-end', marginBottom: 5, flexDirection: 'row', flex:1  , }}>
+                                                    {/* <Text>{"\n"}</Text> */}
+                                                    <Text style={{fontStyle: 'italic', fontSize: 9, marginLeft: 5 }}>
                                                         {(doc?.timestamp as Timestamp)?.toDate()?.toDateString()}
                                                     </Text>
-                                                    <Text style={{fontStyle: 'italic', fontSize: 12, marginLeft: 5 }}>
+                                                    <Text style={{fontStyle: 'italic', fontSize: 9, marginLeft: 5 }}>
                                                         {(doc?.timestamp as Timestamp)?.toDate()?.toLocaleTimeString('en-US')}
                                                     </Text>
 
@@ -157,7 +157,7 @@ const Group = (props: any) => {
                 <Appbar style={{ flexWrap: "wrap", minHeight:45, }}>
                 {sendImage ? <Image source={{ uri: sendImage }} style={{ width: 50, height: 50, resizeMode: "contain", marginLeft:20 }} /> : null}
                     <Appbar.Action icon='image' onPress={() => selectPicture()}/>
-                    <TextInput style={{flex:1, height:38}} autoComplete={false} onChangeText={(text) => setMessage(text)}/>
+                    <TextInput style={{flex:1, height:38}} autoComplete={false} onChangeText={(text) => setMessage(text)} onSubmitEditing={() => sendMessage()} />
                     <Appbar.Action icon = 'send' onPress={() => sendMessage()}/>
                 </Appbar>
             {/* <View style={{backgroundColor: 'rgba(32, 68, 224, 1)'}}>
