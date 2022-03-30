@@ -64,7 +64,7 @@ const Profile = (props: any) => {
                 right={()=><IconButton icon='chevron-right' style={{ marginTop: 10 }}></IconButton>}
                 onPress={() => setModalVisible(!modalVisible)}
             />
-            <Divider style={{ backgroundColor:'white' }} />
+            <Divider style={{ backgroundColor:'white', marginBottom:5}} />
         </View>
     )
 }
