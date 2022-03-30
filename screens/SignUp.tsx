@@ -13,7 +13,7 @@ import { Icon } from 'react-native-paper/lib/typescript/components/Avatar/Avatar
 const logo = require('../assets/Phylai.png');
 const anon = require('../assets/anon.png');
 const SignUp = (props: any) => {
-
+  
   const { colors } = useTheme();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -72,14 +72,14 @@ const SignUp = (props: any) => {
           photoURL: image
         }).then(async () => {
           console.log("Updated Account Successfully");
-          await setDoc(doc(db, "user", authUser.user.uid), {
-            uid: authUser.user.uid,
+          await setDoc(doc(db, "user", email.toLowerCase()), {
             firstName: firstName,
             lastName: lastName,
             username: username,
-            email: email,
-            siteAdmin: true,
-            photoURL: image
+            email: email.toLowerCase(),
+            photoURL: image,
+            friends:[],
+            requests:[]
           }).then(() => {
             console.log("Added user to DB successfully");
             props.navigation.replace('Login');
