@@ -11,6 +11,7 @@ import { IconButton, useTheme } from 'react-native-paper';
 const CalendarComponent = (props: any) => {
     const { gid, events, admin, personal, uid } = props;
     const{colors} = useTheme();
+    const user = getAuth().currentUser
     const [eventName, setEventName] = useState('');
     const [newDate, setNewDate] = useState('');
     const [eventInfo, setEventInfo] = useState('');
@@ -46,8 +47,8 @@ const CalendarComponent = (props: any) => {
         }
         if(personal){
             console.log(uid);
-            await addDoc(collection(db, "user", uid, "events"), {
-                uid: uid,
+            await addDoc(collection(db, "user", user?.email as string, "events"), {
+                email: user?.email,
                 timestamp: newDate,
                 name: eventName,
                 information: eventInfo ? eventInfo : null,

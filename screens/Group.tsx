@@ -25,18 +25,19 @@ const Group = (props: any) => {
 
 
     useEffect(() => {
+        console.log(user);
         props.navigation.setOptions({
             header: () => (
                 <Appbar.Header>
                     <Appbar.BackAction onPress={() => props.navigation.navigate("HomeTab")} />
                     <Image source={{ uri: group.data.photoURL ? group.data.photoURL : null }} style={{ width: 48, height: 48, borderRadius: 48 / 4 }} />
                     <Appbar.Content title={group.data.name} />
-                    <Appbar.Action icon='account-group' onPress={() => props.navigation.replace('GroupMember')} />
+                    <Appbar.Action icon='account-group' onPress={() => props.navigation.replace('GroupMembers')} />
                     <Appbar.Action icon='calendar' onPress={() => props.navigation.replace('GroupCalendar')} />
                 </Appbar.Header>
             )
         });
-        const q = query(collectionGroup(db, 'messages'), where("gid", "==", group.id), orderBy('timestamp', 'desc'));
+        const q = query(collection(db, 'group', group.id,'messages' ), orderBy('timestamp', 'desc'));
         const unsubscribe = onSnapshot(q, (snapshot) => setChat(snapshot.docs.map((doc) => ({ ...doc.data() }))));
         return unsubscribe;
     }, []);
@@ -85,7 +86,7 @@ const Group = (props: any) => {
             timestamp: serverTimestamp(),
             username: user?.displayName,
             text: message,
-            userID: user?.uid,
+            email: user?.email,
             userImg: user?.photoURL,
             gid: group.id,
             image: image ? image : null,
@@ -168,7 +169,7 @@ const Group = (props: any) => {
                 <Appbar style={{ flexWrap: "wrap", minHeight:45, }}>
                 {sendImage ? <Image source={{ uri: sendImage }} style={{ width: 50, height: 50, resizeMode: "contain", marginLeft:20 }} /> : null}
                     <Appbar.Action icon='image' onPress={() => selectPicture()}/>
-                    <TextInput style={{flex:1, height:38}} autoComplete={false} onChangeText={(text) => setMessage(text)} onSubmitEditing={() => sendMessage()} />
+                    <TextInput style={{flex:1, height:38}} autoComplete={false} onChangeText={(text) => setMessage(text)} onSubmitEditing={() => sendMessage()} value={message} />
                     <Appbar.Action icon = 'send' onPress={() => sendMessage()}/>
                 </Appbar>
             {/* <View style={{backgroundColor: 'rgba(32, 68, 224, 1)'}}>

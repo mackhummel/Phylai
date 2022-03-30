@@ -12,7 +12,7 @@ import { db } from '../config/firebase';
 import * as ImagePicker from "expo-image-picker";
 import AddGroup from '../components/AddGroup';
 import { MyContext } from '../constants/context';
-import { IconButton, List, useTheme, Button, Divider } from 'react-native-paper';
+import { IconButton, List, useTheme, Button, Divider, TextInput, Title, Badge, Chip, Surface } from 'react-native-paper';
 const anon = require('../assets/anon.png');
 
 
@@ -27,7 +27,7 @@ const Home = (props: any) => {
   const [groupMessages, SetGroupMessages] = useState<any>([]);
 
   const { groups, uid } = useContext(MyContext);
-  
+
   const selectProfPic = async () => {
     let pickerResult = await ImagePicker.launchImageLibraryAsync({
       allowsEditing: true,
@@ -80,35 +80,34 @@ const Home = (props: any) => {
 
   return (
     <View style={{ flex: 1 }}>
+      
       <View style={{ flex: 3 }}>
         <ScrollView >
 
 
-          {groups ? <List.Section>{groups.map((group: any) => {
-            return (<><List.Item
-              title={group.data.name}
-              onPress={() => props.navigation.navigate('GroupDashboard', { gid: group.id })}
-              left={() => <Image source={{uri: group.data.photoURL? group.data.photoURL : anon }} style={{ width: 48, height: 48, borderRadius: 48 / 4 }} />}
-              right={() => (
-                <>
-                  <View style={{justifyContent:'center'}}>
-                    <Text style={{textAlign:'center'}}>Members</Text>
-                    <Text style={{textAlign:'center'}}>{group.data.member.length}</Text>
-                  </View>
-                  <IconButton icon='chevron-right'></IconButton>
-                </>
-              )}
-            >
-            
-            </List.Item>
-            <Divider style={{height:2}}/></>
-            );
-          })}</List.Section> : null}
+          <Surface>
+            {groups ? <>{groups.map((group: any) => {
+              return (<><List.Item 
+                title={() => <Title>{group.data.name}</Title>}
+                // description={()=><Chip>{"Members: " + group.data.member.length}</Chip>}
+                onPress={() => props.navigation.navigate('GroupDashboard', { gid: group.id })}
+                left={() => <Image source={{ uri: group.data.photoURL ? group.data.photoURL : anon }} style={{ width: 60, height: 60, borderRadius: 60 / 4 }} />}
+                right={() => (
+                  <>
+                    <Chip icon="account-group-outline"  style={{margin:10, backgroundColor:theme.colors.primary}}>{"Members: " + group.data.member.length}</Chip>
+                    <IconButton icon='chevron-right' style={{ marginTop: 15 }}></IconButton>
+                  </>
+                )}
+              >
+              </List.Item>
+                <Divider style={{ height: 2, backgroundColor:'white' }} /></>
+              );
+            })}</> : null}
+          </Surface>
         </ScrollView>
-        <View style={styles.container}>
-          <AddGroup/>
-        </View>
+        
       </View>
+      <AddGroup/>
     </View>
 
   )

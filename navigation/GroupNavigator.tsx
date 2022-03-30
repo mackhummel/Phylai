@@ -21,7 +21,7 @@ function GroupDashboard(props: any) {
     const [loading, setLoading] = useState(true);
     const [redirect, setRedirect] = useState(false);
     const group = groups.find((group: any) => group.id === props.route.params.gid);
-    const admin = group.data.admin.includes(user?.uid) as boolean
+    const admin = group.data.admin.includes(user?.email) as boolean
     const navBack = () => {
         props.navigation.navigate('Group');
     }
@@ -65,7 +65,7 @@ function GroupDashboard(props: any) {
         }}>
             <Stack.Screen name="Group" children={() => <Group {...props} group={group} admin={admin} />} />
             <Stack.Screen name="GroupCalendar" children={() => <GroupCalendar  {...props} admin={admin} group={group} navBack={navBack}/>} />
-            <Stack.Screen name="GroupMember" children={() => <GroupMember  {...props} admin={admin} group={group} navBack={navBack} />} />
+            <Stack.Screen name="GroupMembers" children={() => <GroupMember  {...props} admin={admin} group={group} navBack={navBack} />} />
         </Stack.Navigator>
     )
 }

@@ -25,8 +25,9 @@ const theme = {
     ...DefaultTheme.colors,
     primary: '#4B9CD3',
     accent: 'white',
-    text: 'black',
-
+    text: 'white',
+    surface:'#13294B',
+    background:'#13294B',
   },
 };
 export default function App() {

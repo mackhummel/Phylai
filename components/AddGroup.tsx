@@ -1,4 +1,4 @@
-import { StyleSheet, View, Modal, Pressable, Image, Text, Platform } from 'react-native';
+import { StyleSheet, View, Platform } from 'react-native';
 import React, { useState } from "react";
 import { Input } from 'react-native-elements';
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/storage';
@@ -7,7 +7,7 @@ import * as ImagePicker from "expo-image-picker";
 import { getAuth } from 'firebase/auth';
 import { db } from '../config/firebase';
 import { v4 as uuidv4 } from 'uuid';
-import { useTheme, Button, TextInput, Divider, IconButton, } from 'react-native-paper';
+import { useTheme, Button, TextInput, Divider, IconButton, FAB, Modal, Portal, Avatar, Title, Headline } from 'react-native-paper';
 
 
 
@@ -79,9 +79,9 @@ const AddGroup = (props: any) => {
         await addDoc(collection(db, "group"), {
             timestamp: serverTimestamp(),
             name: groupName,
-            owner: user?.uid,
-            admin:[user?.uid],
-            member:[user?.uid],
+            owner: user?.email,
+            admin: [user?.email],
+            member: [user?.email],
             photoURL: image
 
         }).then(async (res) => {
@@ -97,10 +97,45 @@ const AddGroup = (props: any) => {
     }
     return (
         <View>
-            <Button onPress={() => setModalVisible(!modalVisible)} icon='account-multiple-plus' mode='contained' style={{margin:10}}>
-                New Group
-            </Button>
-            <Modal
+            <FAB
+                style={styles.fab}
+                icon='account-multiple-plus-outline'
+                onPress={() => setModalVisible(!modalVisible)}
+                color={colors.surface}
+            />
+            <Portal>
+                <Modal
+                    visible={modalVisible}
+                    contentContainerStyle={styles.container}
+                    onDismiss={() => setModalVisible(!modalVisible)}
+                >
+                    <Headline  style={{marginBottom:20}} >Group Creation</Headline>
+                    <Avatar.Image size={80} source={profPic ? { uri: profPic } : anon} />
+                    <View style={{ flexDirection:'row', margin:10}}>
+                        <View style={styles.inputContainer}><TextInput
+                            mode='outlined'
+                            textContentType='name'
+                            placeholder='Group Name...'
+                            value={groupName}
+                            onChangeText={(text) => setGroupName(text)}
+                            onSubmitEditing={() => createGroup()}
+                            multiline={true}
+                            autoComplete={false}
+                            theme={{colors:{placeholder:'white'}}}
+                        /></View>
+                        
+                        <View style={{flex:1}}><IconButton icon='image-plus' color={colors.surface} size={40} onPress={() => selectProfPic()}> </IconButton></View>
+                    </View>
+                    <Button icon='account-multiple-plus-outline' mode='contained' onPress={() => createGroup()} color='green'>
+                        Create Group
+                    </Button>
+                    <Button style={{marginTop:10}} icon='close-outline' mode='contained' onPress={() => setModalVisible(!modalVisible)} color='red'>
+                        Cancel
+                    </Button>
+                </Modal>
+            </Portal>
+
+            {/* <Modal
                 animationType='slide'
                 transparent={false}
                 visible={modalVisible}
@@ -138,20 +173,30 @@ const AddGroup = (props: any) => {
                         </View>
                     </View>
                 </View>
-            </Modal>
+            </Modal> */}
         </View>
     )
 }
 const styles = StyleSheet.create({
+    inputContainer: {
+        flex:5,
+        width: Platform.OS === 'ios' ? "80%" : "50%",
+    },
     centeredView: {
         flex: 1,
         justifyContent: "center",
-        alignContent:'center',
-        padding:20,
-        
+        alignContent: 'center',
+        padding: 20,
+
+    },
+    fab: {
+        position: 'absolute',
+        margin: 16,
+        right: 0,
+        bottom: 0,
     },
     modalView: {
-        backgroundColor: "white",
+        backgroundColor: "blue",
         borderRadius: 20,
         padding: 35,
         alignItems: "center",
@@ -163,7 +208,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.25,
         shadowRadius: 4,
         elevation: 5,
-        justifyContent:'center',
+        justifyContent: 'center',
     },
     button: {
         borderRadius: 20,
@@ -192,7 +237,14 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center'
     },
-
+    container: {
+        backgroundColor: '#4B9CD3',
+        padding: 20,
+        margin: Platform.OS === 'web' ? '25%' : "0%",
+        borderRadius: 30,
+        alignItems: 'center',
+        justifyContent: 'center',
+    }
 
 
 })
