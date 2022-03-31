@@ -3,7 +3,8 @@ import { arrayUnion, collection, collectionGroup, doc, getDoc, getDocs, onSnapsh
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, Platform, SectionList, Image } from "react-native";
 import { Button, Input } from "react-native-elements";
-import { Appbar, List, Surface, Title } from "react-native-paper";
+import { ScrollView } from "react-native-gesture-handler";
+import { Appbar, FAB, Headline, IconButton, List, Modal, Portal, Surface, TextInput, Title, useTheme } from "react-native-paper";
 import Profile from "../components/Profile";
 import { db } from '../config/firebase';
 const anon = require('../assets/anon.png');
@@ -15,8 +16,9 @@ const GroupMember = (props: any) => {
     const [members, setMembers] = useState<any>([]);
     const [admins, setAdmins] = useState<any>([]);
     const [newMember, setNewMember] = useState("");
+    const [modalVisible, setModalVisible] = useState(false)
     const admin = props.admin;
-
+    const {colors} = useTheme()
     useEffect(() => {
 
         props.navigation.setOptions({
@@ -60,7 +62,7 @@ const GroupMember = (props: any) => {
     return (
 
         <Surface style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            {admin ? <View style={styles.inputContainer}>
+            {/* {admin ? <View style={styles.inputContainer}>
                 <Input
                     placeholder='Email'
                     value={newMember}
@@ -72,20 +74,23 @@ const GroupMember = (props: any) => {
                     buttonStyle={{ backgroundColor: 'rgba(111, 202, 186, 1)' }}
                 />
 
-            </View> : null}
+            </View> : null} */}
             <View style={styles.container}>
                 <List.Section>
+                <ScrollView>
                     <Title>Admin</Title>
                     {admins ? admins.map((admin: any) => 
                         <Profile profile={admin} />
-                    ) : null}
+                    ) : null}</ScrollView>
                 </List.Section>
                 {console.log(admins)}
                 <List.Section>
                     <Title>Members</Title>
+                    <ScrollView>
                     {members ? members.map((member: any) => 
                         <Profile profile={member} />
                     ) : null}
+                    </ScrollView>
                 </List.Section>
                 {/* <SectionList
                     sections={[
@@ -106,6 +111,34 @@ const GroupMember = (props: any) => {
                     keyExtractor={(item, index) => index.toString()}
                 /> */}
             </View>
+            <FAB
+                style={styles.fab}
+                icon='account-plus'
+                onPress={() => setModalVisible(!modalVisible)}
+                color={colors.surface}
+            />
+            <Portal>
+                <Modal visible={modalVisible} onDismiss={() => setModalVisible(!modalVisible)} contentContainerStyle={styles.modalContainer}>
+                    <Headline>Add Member</Headline>
+                    <View style={{ flexDirection: 'row', alignItems:'center', justifyContent:'center' }}>
+
+                        <View style={styles.inputContainer}><TextInput
+                            mode='outlined'
+                            textContentType='emailAddress'
+                            placeholder='Enter Email...'
+                            value={newMember}
+                            onChangeText={(text:any) => setNewMember(text)}
+                            onSubmitEditing={() => addMember(newMember, group.id)}
+                            autoComplete={false}
+                            theme={{ colors: { placeholder: 'white' } }}
+                        /></View>
+                        <View style={{ flex: 1, marginTop:10 }}>
+                            <IconButton size={40} icon='send-circle'></IconButton>
+                        </View>
+                    </View>
+
+                </Modal>
+            </Portal>
             {/* <Text>Admin {"\n"}</Text>
             {admins ? admins.map((admin: any) => <Text>{admin?.username}</Text>) : null}
             <Text>{"\n\n"}Members{"\n"}</Text>
@@ -125,6 +158,20 @@ const styles = StyleSheet.create({
         paddingTop: 10,
         width: '100%',
 
+    },
+    modalContainer: {
+        backgroundColor: '#4B9CD3',
+        padding: 20,
+        margin: Platform.OS === 'web' ? '25%' : "10%",
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 30
+    },
+    fab: {
+        position: 'absolute',
+        margin: 16,
+        right: 0,
+        bottom: 0,
     },
     imgContainer: {
         width: '30%',

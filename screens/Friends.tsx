@@ -43,7 +43,6 @@ const Friends = (props: any) => {
 
 
     const sendFriendRequest = async () => {
-        console.log(friends)
         if (!friends.filter((doc: any) => doc.email === friendEmail.toLowerCase())) {
             console.log('Already friends');
             return;
@@ -105,7 +104,6 @@ const Friends = (props: any) => {
                             value={friendEmail}
                             onChangeText={(text) => setFriendEmail(text)}
                             onSubmitEditing={() => sendFriendRequest()}
-                            multiline={true}
                             autoComplete={false}
                             theme={{ colors: { placeholder: 'white' } }}
                         /></View>

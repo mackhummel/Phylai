@@ -1,7 +1,7 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createStackNavigator } from "@react-navigation/stack";
 import PersonalCalendar from "../screens/PersonalCalendar";
-import { colors, Icon } from "react-native-elements";
+import { colors } from "react-native-elements";
 import Home from "../screens/Home";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, View, Image } from "react-native";
@@ -16,6 +16,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
 import GroupDashboard from "./GroupNavigator";
 import Friends from "../screens/Friends";
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 
 const Dashboard = createNativeStackNavigator();
@@ -145,8 +146,9 @@ function DashboardStack(props: any) {
             <Avatar.Image size={40} source={{uri: user?.photoURL ? user.photoURL : anon}}/>
             {/* <Image source={{ uri: user?.photoURL ? user.photoURL : anon }} style={{ width: 48, height: 48, borderRadius: 48 / 2 }} /> */}
             <Appbar.Content title={user?.displayName} />
-            <Appbar.Action icon='account-circle' />
-            <Appbar.Action icon='logout' onPress={signOutUser} />
+            <Appbar.Action icon='logout' onPress={signOutUser} /> 
+            <Appbar.Action icon={()=><Icon name='settings' size={25}/>} />
+            
           </Appbar.Header>
         )
 

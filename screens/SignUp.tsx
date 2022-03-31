@@ -9,11 +9,12 @@ import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/
 import { v4 as uuidv4 } from 'uuid';
 import { useTheme, Button, TextInput, Divider, IconButton, } from 'react-native-paper';
 import { Icon } from 'react-native-paper/lib/typescript/components/Avatar/Avatar';
+import { ScrollView } from 'react-native-gesture-handler';
 
 const logo = require('../assets/Phylai.png');
 const anon = require('../assets/anon.png');
 const SignUp = (props: any) => {
-  
+
   const { colors } = useTheme();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -78,8 +79,8 @@ const SignUp = (props: any) => {
             username: username,
             email: email.toLowerCase(),
             photoURL: image,
-            friends:[],
-            requests:[]
+            friends: [],
+            requests: []
           }).then(() => {
             console.log("Added user to DB successfully");
             props.navigation.replace('Login');
@@ -94,87 +95,102 @@ const SignUp = (props: any) => {
     props.navigation.replace('Login');
   }
   return (
-    <View style={{backgroundColor:colors.surface,
+    <View style={{
+      backgroundColor: colors.surface,
       flex: 1,
-      width: '100%',
-      alignItems: 'center',
-      justifyContent: 'center',}}>
-      <Image source={logo} style={styles.image} />
-      <Text style={{ marginTop: 15, marginBottom:15, fontSize: 35, color:colors.text }}> Create Account </Text>
-      <View style={styles.imgContainer}>{profPic ?  <Image source={{uri:profPic}} style={{ width: 60, height: 60, borderRadius: 60 / 2 }} /> : <Image source={anon} style={{ width: 60, height: 60, borderRadius: 60 / 2 }} />}</View>
-      <View style={styles.inputContainer}>
-        <View style={styles.vertical}>
+    }}>
+      <ScrollView contentContainerStyle={{
+        width: '100%',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexGrow: 1
+      }}>
+        <Image source={logo} style={styles.image} />
+        <Text style={{ marginTop: 15, marginBottom: 15, fontSize: 35, color: colors.text }}> Create Account </Text>
+        <View style={styles.imgContainer}>{profPic ? <Image source={{ uri: profPic }} style={{ width: 60, height: 60, borderRadius: 60 / 2 }} /> : <Image source={anon} style={{ width: 60, height: 60, borderRadius: 60 / 2 }} />}</View>
+        <View style={styles.inputContainer}>
+          <View style={styles.vertical}>
+            <TextInput
+              autoComplete='never'
+              placeholder='First Name'
+              value={firstName}
+              textContentType='name'
+              onChangeText={(text) => setFirstName(text)}
+              style={{
+                width: '48%',
+              }}
+              mode='outlined'
+              theme={{ colors: { placeholder: 'white' } }}
+            />
+            <Divider style={{ width: "4%", backgroundColor: 'transparent' }} />
+            <TextInput
+              autoComplete='never'
+              placeholder='Last Name'
+              value={lastName}
+              textContentType='name'
+              onChangeText={(text) => setLastName(text)}
+              style={{
+                width: '48%',
+              }}
+              mode='outlined'
+              theme={{ colors: { placeholder: 'white' } }}
+            />
+          </View>
           <TextInput
+            style={styles.textInput}
             autoComplete='never'
-            placeholder='First Name'
-            value={firstName}
-            textContentType='name'
-            onChangeText={(text) => setFirstName(text)}
-            style={{
-              width: '48%',
-            }}
+            placeholder='Username'
+            value={username}
+            textContentType='username'
+            onChangeText={(text) => setUsername(text)}
+            mode='outlined'
+            theme={{ colors: { placeholder: 'white' } }}
           />
-          <Divider style={{ width: "4%", backgroundColor: 'transparent' }} />
           <TextInput
+            style={styles.textInput}
             autoComplete='never'
-            placeholder='Last Name'
-            value={lastName}
-            textContentType='name'
-            onChangeText={(text) => setLastName(text)}
-            style={{
-              width: '48%',
-            }}
+            placeholder='Email Address'
+            value={email}
+            textContentType='emailAddress'
+            onChangeText={(text) => setEmail(text)}
+            mode='outlined'
+            theme={{ colors: { placeholder: 'white' } }}
           />
-        </View>
-        <TextInput
-          style={styles.textInput}
-          autoComplete='never'
-          placeholder='Username'
-          value={username}
-          textContentType='username'
-          onChangeText={(text) => setUsername(text)}
-        />
-        <TextInput
-          style={styles.textInput}
-          autoComplete='never'
-          placeholder='Email Address'
-          value={email}
-          textContentType='emailAddress'
-          onChangeText={(text) => setEmail(text)}
-        />
-        <TextInput
-          style={styles.textInput}
-          autoComplete='never'
-          placeholder='Password'
-          onChangeText={(text) => setPassword(text)}
-          secureTextEntry={hidden}
-          value={password}
-          
-          right={<TextInput.Icon name="eye" onPress={() => setHidden(!hidden)} />}
-        />
+          <TextInput
+            style={styles.textInput}
+            autoComplete='never'
+            placeholder='Password'
+            onChangeText={(text) => setPassword(text)}
+            secureTextEntry={hidden}
+            value={password}
+            mode='outlined'
+            theme={{ colors: { placeholder: 'white' } }}
+            right={<TextInput.Icon name="eye" onPress={() => setHidden(!hidden)} />}
+          />
 
 
-        <View style={{
+          <View style={{
             alignItems: 'center',
             justifyContent: 'center',
-            flexDirection:'row', 
-        }}><IconButton icon='image-plus'  size={40} onPress={() => selectProfPic()}> </IconButton><Text style={{color:colors.text}}>Add Profile Photo</Text></View>
+            flexDirection: 'row',
+          }}><IconButton icon='image-plus' size={40} onPress={() => selectProfPic()}> </IconButton><Text style={{ color: colors.text }}>Add Profile Photo</Text></View>
 
 
 
-      </View>
+        </View>
 
-      <Button
-        onPress={() => createAccount()}
-        mode="contained"
-        style={{ marginBottom: 10 }}
-      >Create</Button>
-      <Button
-        onPress={login}
-        mode="outlined"
-        style={{ margin: 10 }}
-      >Back To Login</Button>
-      <StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'} />
+        <Button
+          onPress={() => createAccount()}
+          mode="contained"
+          style={{ marginBottom: 10 }}
+        >Create</Button>
+        <Button
+          onPress={login}
+          mode="outlined"
+          style={{ margin: 10 , borderColor:colors.primary}}
+        >Back To Login</Button>
+        
+      </ScrollView>
     </View>
   )
 }
