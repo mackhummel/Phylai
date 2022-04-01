@@ -1,7 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
-import { Platform, StyleSheet, View, ActivityIndicator, Image , Text, ScrollView} from 'react-native';
+import { Platform, StyleSheet, View, Image , Text, ScrollView} from 'react-native';
 import React, {useEffect, useState } from "react";
-import {Button, useTheme, TextInput} from 'react-native-paper'
+import {Button, useTheme, TextInput, ActivityIndicator} from 'react-native-paper'
 import {  getAuth, onAuthStateChanged, signInWithEmailAndPassword } from '@firebase/auth';
 const logo = require('../assets/Phylai.png');
 

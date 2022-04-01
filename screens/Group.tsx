@@ -159,6 +159,7 @@ const Group = (props: any) => {
                 <Surface >
                     {chat === undefined ? null : chat.map((doc: any, index: number) => (
                         <List.Item
+                        key={index}
                             title={() => (
                                 <>
                                     <Text style={{ color: colors.primary }}>{doc.data.username}</Text>
@@ -170,7 +171,7 @@ const Group = (props: any) => {
                             description={() => (
                                 <View style={{ flex: 1 }}>
                                     <Paragraph style={{ flex: 1 }}>{doc.data.text}</Paragraph>
-                                    {doc?.data.image ? <View><Image source={{ uri: doc.data.image }} style={{ width: '100%', height: 250, resizeMode: "contain", flexGrow: 1 }} /></View> : null}
+                                    {doc?.data.image ? <View><Image source={{ uri: doc.data.image }} style={{ width: '100%', height: 250, resizeMode: "contain" }} /></View> : null}
                                     <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
                                         <Text style={{ margin: 15, color: 'green' }}>{doc.data.likes.length}</Text>
                                         {doc.data.likes.includes(user?.email) ? <IconButton style={{ marginLeft: -15 }} icon='thumb-up' size={20} color='green' onPress={() => likeChat(doc.id)} /> :

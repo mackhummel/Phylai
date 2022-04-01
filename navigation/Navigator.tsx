@@ -6,15 +6,18 @@ import SignUp from "../screens/SignUp";
 import LinkingConfiguration from './LinkingConfiguration';
 
 import { auth } from "../config/firebase";
+import { KeyboardAvoidingView, Platform } from "react-native";
 
 
 
 export default function Navigator() {
     return (
         <NavigationContainer
-         linking={LinkingConfiguration}
+            linking={LinkingConfiguration}
         >
-            <RootNavigator />
+            <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{flex:1}}>
+                <RootNavigator />
+            </KeyboardAvoidingView>
         </NavigationContainer>
     );
 }

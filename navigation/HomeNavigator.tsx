@@ -4,9 +4,9 @@ import PersonalCalendar from "../screens/PersonalCalendar";
 import { colors } from "react-native-elements";
 import Home from "../screens/Home";
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, View, Image } from "react-native";
+import { View, Image } from "react-native";
 import AddGroup from "../components/AddGroup";
-import { IconButton, Appbar, Button, BottomNavigation, useTheme, Avatar } from "react-native-paper";
+import { IconButton, Appbar, Button, BottomNavigation, useTheme, Avatar, ActivityIndicator } from "react-native-paper";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "../config/firebase";
 import { db } from '../config/firebase';
@@ -17,6 +17,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import GroupDashboard from "./GroupNavigator";
 import Friends from "../screens/Friends";
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import Settings from "../components/Settings";
 
 
 const Dashboard = createNativeStackNavigator();
@@ -27,13 +28,14 @@ function HomeTab(props: any) {
   const user = auth.currentUser;
   const HomeTab = createBottomTabNavigator();
   const [index, setIndex] = useState(0);
+  
   const [routes] = useState([
     { key: 'home', title: 'Groups', icon: 'account-group' },
     { key: 'calendar', title: 'Calendar', icon: 'calendar-month' },
     { key: 'friends', title: 'Friends', icon: 'account-search-outline' }
   ])
   const renderScene = BottomNavigation.SceneMap({
-    home: () => <Home {...props} />,
+    home: () => <Home {...props}  />,
     calendar: PersonalCalendar,
     friends: Friends
   })
@@ -75,6 +77,11 @@ function DashboardStack(props: any) {
   const [loading, setLoading] = useState(true);
   const [friends, setFriends] = useState<any>();
   const [friendRequests, setFriendRequests] = useState<any>();
+  const [updatePage, setUpdatePage] = useState(false);
+
+  const update = () =>{
+    setUpdatePage(!updatePage);
+  }
 
   const getProfile = async (email: string) => {
     const friendDocRef = doc(db, 'user', email);
@@ -123,14 +130,7 @@ function DashboardStack(props: any) {
     </View>)
   }
 
-  const signOutUser = () => {
-    signOut(auth).then(() => {
-      props.navigation.replace("Login")
-      console.log("Logout Successful")
-    }).catch((error) => {
-      console.log("Logout error: ", error.message);
-    })
-  }
+  
 
   const data = {
     groups: groups,
@@ -146,8 +146,8 @@ function DashboardStack(props: any) {
             <Avatar.Image size={40} source={{uri: user?.photoURL ? user.photoURL : anon}}/>
             {/* <Image source={{ uri: user?.photoURL ? user.photoURL : anon }} style={{ width: 48, height: 48, borderRadius: 48 / 2 }} /> */}
             <Appbar.Content title={user?.displayName} />
-            <Appbar.Action icon='logout' onPress={signOutUser} /> 
-            <Appbar.Action icon={()=><Icon name='settings' size={25}/>} />
+            {/* <Appbar.Action icon='logout' onPress={signOutUser} />  */}
+            <Appbar.Action icon={()=><Settings update={update}/>} />
             
           </Appbar.Header>
         )

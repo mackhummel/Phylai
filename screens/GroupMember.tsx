@@ -18,7 +18,10 @@ const GroupMember = (props: any) => {
     const [newMember, setNewMember] = useState("");
     const [modalVisible, setModalVisible] = useState(false)
     const admin = props.admin;
-    const {colors} = useTheme()
+    const {colors} = useTheme();
+    const [updatePage, setUpdatePage] = useState(false);
+
+    
     useEffect(() => {
 
         props.navigation.setOptions({
@@ -35,15 +38,17 @@ const GroupMember = (props: any) => {
         const qMember = query(collection(db, 'user'), where('email', "in", group.data.member));
         const unsubscribeMembers = onSnapshot(qMember, (snapshot) => setMembers(snapshot.docs.map((doc) => ({ ...doc.data() }))));
         return () => {
-            unsubscribeAdmins();
+            
             unsubscribeMembers();
+            unsubscribeAdmins();
         }
 
     }, []);
+    const update = () =>{
+        setUpdatePage(!updatePage);
+    }
     const addMember = async (email: any, gid: any) => {
-        //Bad practice, update to only grab single user from firebase
         const document = doc(db, 'group', gid);
-        //const user = (await getDocs(query(collection(db, 'user'), where('username', "==", username)))).docs.map((doc) => doc.data());
         const user = await getDoc(doc(db, 'user', email.toLowerCase()));
 
         if (user.data() !== undefined) {
@@ -62,19 +67,7 @@ const GroupMember = (props: any) => {
     return (
 
         <Surface style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            {/* {admin ? <View style={styles.inputContainer}>
-                <Input
-                    placeholder='Email'
-                    value={newMember}
-                    onChangeText={(text: string) => setNewMember(text)}
-                />
-                <Button
-                    onPress={() => addMember(newMember, group.id)}
-                    title="Add Member"
-                    buttonStyle={{ backgroundColor: 'rgba(111, 202, 186, 1)' }}
-                />
-
-            </View> : null} */}
+            
             <View style={styles.container}>
                 <List.Section>
                 <ScrollView>
@@ -83,35 +76,16 @@ const GroupMember = (props: any) => {
                         <Profile profile={admin} />
                     ) : null}</ScrollView>
                 </List.Section>
-                {console.log(admins)}
                 <List.Section>
                     <Title>Members</Title>
                     <ScrollView>
-                    {members ? members.map((member: any) => 
-                        <Profile profile={member} />
+                    {members ? members.filter((doc:any)=>!group.data.admin.includes(doc.email)).map((member: any) => 
+                        <Profile profile={member} admin={admin} gid={group.id} update={update} />
                     ) : null}
                     </ScrollView>
                 </List.Section>
-                {/* <SectionList
-                    sections={[
-                        { title: 'Admins', data: admins },
-                        { title: 'Members', data: members.filter((doc:any)=>!group.data.admin.includes(doc.email)) },
-                    ]}
-                    renderItem={({ item }) => <View style={styles.row}>
-                        <View style={styles.imgContainer}>{item?.photoURL? <Image
-                            source={{ uri: item?.photoURL }} 
-                            style={{ width: 60, height:60, borderRadius:60/2, marginBottom:20 }}
-                        />:<Image
-                        source={anon} 
-                        style={{ width: 60, height:60, borderRadius:60/2, marginBottom:20 }}
-                    />}</View>
-                        <Text style={styles.item}>{item?.username}</Text>
-                    </View>}
-                    renderSectionHeader={({ section }) => <Text style={styles.sectionHeader}>{section.title}</Text>}
-                    keyExtractor={(item, index) => index.toString()}
-                /> */}
             </View>
-            <FAB
+            {admin? <><FAB
                 style={styles.fab}
                 icon='account-plus'
                 onPress={() => setModalVisible(!modalVisible)}
@@ -138,7 +112,7 @@ const GroupMember = (props: any) => {
                     </View>
 
                 </Modal>
-            </Portal>
+            </Portal></>:null}
             {/* <Text>Admin {"\n"}</Text>
             {admins ? admins.map((admin: any) => <Text>{admin?.username}</Text>) : null}
             <Text>{"\n\n"}Members{"\n"}</Text>
