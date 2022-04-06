@@ -10,12 +10,13 @@ import { IconButton, Appbar, Button, BottomNavigation, useTheme, Avatar } from "
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "../config/firebase";
 import { db } from '../config/firebase';
-import { collection, doc, getDoc, onSnapshot, query, where } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, onSnapshot, orderBy, query, where } from "firebase/firestore";
 import { MyContext } from "../constants/context";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
 import GroupDashboard from "./GroupNavigator";
 import Friends from "../screens/Friends";
+import EventDashboard from "./EventDashboard";
 
 
 const Dashboard = createNativeStackNavigator();
@@ -25,7 +26,9 @@ function HomeTab(props: any) {
   const theme = useTheme();
   const user = auth.currentUser;
   const HomeTab = createBottomTabNavigator();
+
   const [index, setIndex] = useState(0);
+  
   const [routes] = useState([
     { key: 'home', title: 'Groups', icon: 'account-group' },
     { key: 'calendar', title: 'Calendar', icon: 'calendar-month' },
@@ -33,7 +36,7 @@ function HomeTab(props: any) {
   ])
   const renderScene = BottomNavigation.SceneMap({
     home: () => <Home {...props} />,
-    calendar: PersonalCalendar,
+    calendar: () => <PersonalCalendar {...props} />,
     friends: Friends
   })
   // const signOutUser = () => {
@@ -74,6 +77,7 @@ function DashboardStack(props: any) {
   const [loading, setLoading] = useState(true);
   const [friends, setFriends] = useState<any>();
   const [friendRequests, setFriendRequests] = useState<any>();
+  const [events, setEvents] = useState<any>([]);
 
   const getProfile = async (email: string) => {
     const friendDocRef = doc(db, 'user', email);
@@ -97,11 +101,24 @@ function DashboardStack(props: any) {
           const userDocRef = doc(db, "user", user.email as string);
           const unsubscribeFriends = onSnapshot(userDocRef, (snapshot) => setFriends(snapshot.data()?.friends.map((doc: any) => doc)));
           const unsubscribeRequests = onSnapshot(userDocRef, (snapshot) => setFriendRequests(snapshot.data()?.requests.map((doc: any) => doc)));
-          setLoading(false);
+
+          //Personal Events Snapshot
+          const q2 = query(collection(db, "user", user?.email as string, "events"), orderBy('timestamp', 'desc'));
+          const unsubscribeEvents = onSnapshot(q2, (snapshot) => {
+            snapshot.docs.map((doc) => {
+              setEvents((prevEvents: any) => ([...prevEvents, { id: doc.id, data: doc.data() }]));
+            });
+          });
+
+
+          //Group Events Snapshot
+
+
           return () => {
             unsubscribeGroup();
             unsubscribeFriends();
             unsubscribeRequests();
+            unsubscribeEvents();
           }
         } else {
           props.navigation.replace('Login');
@@ -111,7 +128,28 @@ function DashboardStack(props: any) {
     ,
     [])
 
-  if (loading || (groups === undefined)) {
+  useEffect(() => {
+    if (groups === undefined) {
+      setLoading(true);
+    } else {
+      setLoading(false);
+
+      //All groups event query
+      groups.forEach(async (group: any) => {
+        const q = query(collection(db, 'group', group.id, "events"), orderBy('timestamp', 'desc'));
+        let promise = await getDocs(q).then((res) => {
+          res.forEach((doc) => {
+            console.log(doc.id)
+            setEvents((prevEvents: any) => ([...prevEvents, { id: doc.id, data: doc.data() }]))
+          });
+        });
+      });
+      setLoading(false);
+
+    }
+  }, [groups]);
+
+  if (loading === true || (groups === undefined)) {
     return (<View style={{
       flex: 1,
       width: '100%',
@@ -131,18 +169,21 @@ function DashboardStack(props: any) {
     })
   }
 
+  console.log(props);
+
   const data = {
     groups: groups,
     uid: user?.uid,
     friends: friends,
-    requests: friendRequests
+    requests: friendRequests,
+    events: events
   }
   return (
     <MyContext.Provider value={data}>
       <Dashboard.Navigator screenOptions={{
         header: () => (
           <Appbar.Header >
-            <Avatar.Image size={40} source={{uri: user?.photoURL ? user.photoURL : anon}}/>
+            <Avatar.Image size={40} source={{ uri: user?.photoURL ? user.photoURL : anon }} />
             {/* <Image source={{ uri: user?.photoURL ? user.photoURL : anon }} style={{ width: 48, height: 48, borderRadius: 48 / 2 }} /> */}
             <Appbar.Content title={user?.displayName} />
             <Appbar.Action icon='account-circle' />
@@ -153,6 +194,7 @@ function DashboardStack(props: any) {
       }}>
         <Dashboard.Screen name="HomeTab" component={HomeTab} />
         <Dashboard.Screen name="GroupDashboard" component={GroupDashboard} />
+        <Dashboard.Screen name="EventDashboard" component={EventDashboard}  />
       </Dashboard.Navigator>
     </MyContext.Provider>
   )

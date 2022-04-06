@@ -1,13 +1,13 @@
 import React, { useState, useContext, useEffect, Component, Fragment } from 'react';
 import { View, TouchableOpacity, StyleSheet, Platform, Animated } from 'react-native';
-import { Button, Input, Text } from 'react-native-elements';
 import { Calendar, Agenda, CalendarProps, CalendarList } from "react-native-calendars";
 import { getAuth } from 'firebase/auth';
 import { db } from '../config/firebase';
 import moment from 'moment';
 import { addDoc, collection, collectionGroup, doc, getDoc, onSnapshot, orderBy, query, Timestamp, where } from 'firebase/firestore';
-import { FAB, Headline, IconButton, Modal, Portal, TextInput, Title, useTheme } from 'react-native-paper';
+import { FAB, Headline, IconButton, Modal, Portal, TextInput, Title, useTheme, Button } from 'react-native-paper';
 import Event from './Event';
+import { ScrollView } from 'react-native-gesture-handler';
 
 const CalendarComponent = (props: any) => {
     const { gid, events, admin, personal, uid } = props;
@@ -20,7 +20,7 @@ const CalendarComponent = (props: any) => {
     const [markedObjects, setMarkedObjects] = useState<any>({});
     const [userId, setUserId] = useState('');
     const [modalVisible, setModalVisible] = useState(false);
-    const [addEventVisible, setAddEventVisible] = useState(false);
+    const [addEventPressed, setAddEventPressed] = useState(false);
 
 
     let today = new Date().toISOString().slice(0, 10);
@@ -33,12 +33,10 @@ const CalendarComponent = (props: any) => {
 
     useEffect(() => {
 
-        events.forEach((event: { timestamp: any; }) => {
-            markedDates[event.timestamp] = { marked: true, dotColor: '#13294B' };
+        events.forEach((event:any) => {
+            markedDates[event.data.timestamp] = { marked: true, dotColor: '#13294B' };
         });
         setMarkedObjects(markedDates);
-
-
 
     }, [events]);
 
@@ -83,46 +81,6 @@ const CalendarComponent = (props: any) => {
         }
     }
 
-    const addEventShow = () => {
-
-        return (
-            <View>
-                <TextInput
-                    placeholder='Event Name'
-                    value={eventName}
-                    onChangeText={(text) => setEventName(text)}
-                    autoComplete={false}
-                />
-                <TextInput
-                    placeholder='Event Date (yyyy-mm-dd)'
-                    value={newDate}
-                    onChangeText={(text) => setNewDate(text)}
-                    autoComplete={false}
-                />
-                <TextInput
-                    label='Event Location'
-                    value={eventLocation}
-                    onChangeText={(text) => setEventLocation(text)}
-                    autoComplete={false}
-                />
-                <TextInput
-                    placeholder='Event Information'
-                    value={eventInfo}
-                    onChangeText={(text) => setEventInfo(text)}
-                    autoComplete={false}
-                />
-                <Button
-                    onPress={() => addEvent()}
-                    title="Add Event"
-                    buttonStyle={{ backgroundColor: 'rgba(111, 202, 186, 1)' }}
-                />
-            </View>
-        );
-
-
-
-    }
-
     const onDayPress: CalendarProps['onDayPress'] = day => {
         setSelected(day.dateString);
     };
@@ -130,15 +88,12 @@ const CalendarComponent = (props: any) => {
     const displayEvents = (day: any) => {
 
         //filter selected events
-        const filteredEvents = events.filter((event: any) => day === event.timestamp);
-
-
-
+        const filteredEvents = events.filter((event: any) => day === event.data.timestamp);
         return (
             <View>
                 {filteredEvents.length === 0 ? null : filteredEvents.map((doc: any) => {
                     return (
-                        <Event event={doc} color={'blue'} />
+                        <Event event={doc} color={'blue'} navigation={props.navigation} events={events}/>
                     )
                 })
                 }
@@ -152,7 +107,6 @@ const CalendarComponent = (props: any) => {
         date.setDate(date.getDate() + 1);
         return (date.toDateString());
     }
-
 
     return (
         <View >
@@ -210,115 +164,68 @@ const CalendarComponent = (props: any) => {
                                 textSectionTitleColor: 'white',
                                 textSectionTitleDisabledColor: '#d9e1e8',
 
-
-                                // textSectionTitleColor: 'white',
                             }}
                             style={styles.calendar}
                         />
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                             <Title>{formatDate(selected)}</Title>
-                            <IconButton icon={'plus'} onPress={() => addEventShow()}></IconButton>
+                            {(admin || personal) ? <IconButton icon={'plus'} onPress={() => setAddEventPressed(!addEventPressed)}></IconButton> : null}
+                            {/* // <IconButton icon={'plus'} onPress={() => setAddEventPressed(!addEventPressed)}></IconButton> */}
                         </View>
-                        {/* <View>
-                            <View >
-                                <TextInput
-                                    placeholder='Event Name'
-                                    value={eventName}
-                                    onChangeText={(text) => setEventName(text)}
-                                    autoComplete={false}
-                                />
-                                <TextInput
-                                    placeholder='Event Date (yyyy-mm-dd)'
-                                    value={newDate}
-                                    onChangeText={(text) => setNewDate(text)}
-                                    autoComplete={false}
-                                />
-                                <TextInput
-                                    label='Event Location'
-                                    value={eventLocation}
-                                    onChangeText={(text) => setEventLocation(text)}
-                                    autoComplete={false}
-                                />
-                                <TextInput
-                                    placeholder='Event Information'
-                                    value={eventInfo}
-                                    onChangeText={(text) => setEventInfo(text)}
-                                    autoComplete={false}
-                                />
-                                <Button
-                                    onPress={() => addEvent()}
-                                    title="Add Event"
-                                    buttonStyle={{ backgroundColor: 'rgba(111, 202, 186, 1)' }}
-                                />
-                            </View>
-                        </View> */}
-                        {displayEvents(selected)}
+                        <ScrollView>
+                            {addEventPressed ? <View style={styles.container}>
+                                <View style={{ flexDirection: 'column' }}>
+                                    <View style={{ flexDirection: 'row' }}>
+                                        <TextInput
+                                            mode='outlined'
+                                            textContentType='name'
+                                            placeholder='Event Name'
+                                            value={eventName}
+                                            onChangeText={(text) => setEventName(text)}
+                                            multiline={true}
+                                            autoComplete={false}
+                                            theme={{ colors: { placeholder: 'white' } }}
+
+                                        />
+                                        <TextInput
+                                            mode='outlined'
+                                            textContentType='addressCity'
+                                            placeholder='Event Location'
+                                            value={eventLocation}
+                                            onChangeText={(text) => setEventLocation(text)}
+                                            autoComplete={false}
+                                            theme={{ colors: { placeholder: 'white' } }}
+                                        />
+                                    </View>
+                                    <View>
+                                        <TextInput
+                                            mode='outlined'
+                                            placeholder='Event Date (YYYY-MM-DD)'
+                                            value={newDate}
+                                            onChangeText={(text) => setNewDate(text)}
+                                            autoComplete={false}
+                                            theme={{ colors: { placeholder: 'white' } }}
+                                        />
+                                        <TextInput
+                                            mode='outlined'
+                                            textContentType='name'
+                                            placeholder='Event Information'
+                                            value={eventInfo}
+                                            onChangeText={(text) => setEventInfo(text)}
+                                            autoComplete={false}
+                                            theme={{ colors: { placeholder: 'white' } }}
+                                        />
+                                        <Button style={{margin: 10}}icon='account-multiple-plus-outline' mode='contained' onPress={() => addEvent()} color='green'>
+                                            Add Event
+                                        </Button>
+                                    </View>
+                                </View>
+                            </View> : null}
+                            {displayEvents(selected)}
+                        </ScrollView>
                     </View>
                 </Modal>
             </Portal>
-            {/* <View style={styles.list}>
-                <Fragment>
-                    {(admin || personal) &&
-                        <View>
-                            <Input
-                            placeholder='Event Name'
-                            value={eventName}
-                            onChangeText={(text) => setEventName(text)}
-                            />
-                            <Input
-                                placeholder='Event Date (yyyy-mm-dd)'
-                                value={newDate}
-                                onChangeText={(text) => setNewDate(text)}
-                            />
-                            <Input
-                                placeholder='Event Location'
-                                value={eventLocation}
-                                onChangeText={(text) => setEventLocation(text)}
-                            />
-                            <Input
-                                placeholder='Event Information'
-                                value={eventInfo}
-                                onChangeText={(text) => setEventInfo(text)}
-                            />
-                            <Button
-                                onPress={() => addEvent()}
-                                title="Add Event"
-                                buttonStyle={{ backgroundColor: 'rgba(111, 202, 186, 1)' }}
-                            />
-                        </View>
-                    }
-                    <Calendar
-                        enableSwipeMonths={true}
-                        current={today}
-                        //style={styles.calendar}
-                        renderArrow={(direction) => {
-                            if (direction == "left")
-                              return (
-                                <IconButton icon='arrow-left-bold-outline' color={colors.primary} />
-                              );
-                            if (direction == "right")
-                              return (
-                                
-                                  <IconButton icon='arrow-right-bold-outline' color={colors.primary}/>
-                               
-                              );
-                          }}
-                        onDayPress={onDayPress}
-                        hideArrows={false}
-                        markedDates={{
-                            ...markedObjects, [selected]: {
-                                selected: true,
-                                disableTouchEvent: true,
-                                selectedColor: 'blue',
-                                selectedTextColor: 'white'
-                            }
-                        }
-                        }
-                        theme={{ arrowColor: 'blue' }}
-                    />
-                </Fragment>
-                {displayEvents(selected)}
-            </View> */}
         </View>
 
     )
@@ -327,10 +234,10 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         alignItems: 'center',
-        justifyContent: 'center',
+        // justifyContent: 'space-evenly',
     },
     calendar: {
-        width: '100%'
+        width: '100%',
     },
     modalEvent: {
         backgroundColor: "blue",
@@ -349,14 +256,17 @@ const styles = StyleSheet.create({
     },
     modalContainer: {
         backgroundColor: '#4B9CD3',
-        padding: 20,
-        marginTop: '7.5%',
-        height: '90%',
+        paddingLeft: 20,
+        paddingRight: 20,
+        // marginTop: '30%',
+        marginTop: Platform.OS === 'ios' ? "30%" : 0,
+        // marginBottom: 0,
+        height: Platform.OS === 'ios' ? "100%" : "90%",
         alignSelf: 'center',
         width: Platform.OS === 'ios' ? "100%" : "50%",
         alignItems: 'center',
         justifyContent: 'center',
-        borderRadius: 30
+        borderRadius: 25
     },
     list: {
         borderColor: "black",
@@ -412,6 +322,10 @@ const styles = StyleSheet.create({
         color: "white",
         fontWeight: "bold",
         textAlign: "center"
+    },
+    textInput: {
+        backgroundColor: "#4B9CD3",
+
     },
     modalText: {
         marginBottom: 15,

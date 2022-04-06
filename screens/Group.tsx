@@ -25,7 +25,6 @@ const Group = (props: any) => {
 
 
     useEffect(() => {
-        console.log(user);
         props.navigation.setOptions({
             header: () => (
                 <Appbar.Header>

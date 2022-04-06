@@ -17,13 +17,15 @@ const PersonalCalendar = (props: any) => {
     const { groups, uid } = useContext(MyContext);
     const { colors } = useTheme();
     const [modalVisible, setModalVisible] = useState(false);
+    console.log(props)
 
     useEffect(() => {
         groups.forEach(async (group: any) => {
             const q = query(collection(db, 'group', group.id, "events"), orderBy('timestamp', 'desc'));
             let promise = await getDocs(q).then((res) => {
                 res.forEach((doc) => {
-                    setEvents((prevEvents: any) => ([...prevEvents, doc.data()]))
+                    console.log(doc.id)
+                    setEvents((prevEvents: any) => ([...prevEvents, {id: doc.id, data:doc.data()}]))
                 });
             });
         });
@@ -31,7 +33,7 @@ const PersonalCalendar = (props: any) => {
         const q2 = query(collection(db, "user", user?.email as string, "events"), orderBy('timestamp', 'desc'));
         const unsubscribeEvents = onSnapshot(q2, (snapshot) => {
             snapshot.docs.map((doc) => {
-                setEvents((prevEvents: any) => ([...prevEvents, doc.data()]));
+                setEvents((prevEvents: any) => ([...prevEvents, {id: doc.id, data:doc.data()}]));
             });
         });
 
@@ -56,14 +58,12 @@ const PersonalCalendar = (props: any) => {
     }
 
     function sortEvents(a: any, b: any) { 
-        var dateA = new Date(a.timestamp).getTime();
-        var dateB = new Date(b.timestamp).getTime();
+        var dateA = new Date(a.data.timestamp).getTime();
+        var dateB = new Date(b.data.timestamp).getTime();
         return dateA > dateB ? -1 : 1; 
     }; 
 
     const shownEvents = prepareEvents(events);
-    console.log(shownEvents);
-
     return (
         <View style={{flex: 1}}>
             <View style={{flex: 3}}>
@@ -72,33 +72,13 @@ const PersonalCalendar = (props: any) => {
                     <Title style={{alignSelf: "center", padding: 10}}>Upcoming Events</Title>
                         {shownEvents ? <>{shownEvents.map((event:any) => {
                             return(
-                                <Event event={event}/>
+                                <Event event={event} navigation={props.navigation}/>
                             );
                         })}</> : null}
                 </View>
-
-                {/* <View style={{ width: Platform.OS === 'web' ? '50%' : '100%', flex: 1}}>
-                    <CalendarComponent personal={true} events={events} uid={uid} />
-                </View> */}
-
-                {/* <View>
-                    <FAB
-                        style={styles.fab}
-                        icon='calendar-plus'
-                        onPress={() => setModalVisible(!modalVisible)}
-                        color={colors.surface}
-                    />
-                    <Portal>
-                        <Modal visible={modalVisible} onDismiss={() => setModalVisible(!modalVisible)} contentContainerStyle={styles.modalContainer}>
-                        <Headline>Add New Event</Headline>
-                        <View style={{ flexDirection: 'row', alignItems:'center', justifyContent:'center' }}>
-                        </View>
-                        </Modal>
-                    </Portal>
-                </View> */}
                 </ScrollView>
             </View>
-            <CalendarComponent personal={true} events={events} uid={uid} />
+            <CalendarComponent personal={true} events={events} uid={uid} navigation={props.navigation} />
         </View>
     );
 }
