@@ -85,13 +85,6 @@ const AddGroup = (props: any) => {
             photoURL: image
 
         }).then(async (res) => {
-            // await addDoc(collection(db, 'group',res.id, 'admin'), {
-            //     admins: [user?.uid]
-            // })
-            // await addDoc(collection(db, 'group',res.id, 'member'), {
-            //     members:user?.uid,
-            // })
-            // setGroupName("");
             setModalVisible(false);
         }).catch((error) => console.log("Group Create failed: " + error.message));
     }

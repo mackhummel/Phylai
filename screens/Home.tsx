@@ -79,35 +79,38 @@ const Home = (props: any) => {
 
 
   return (
-    <View style={{ flex: 1 }}>
-      
+    <View key={1} style={{ flex: 1 }}>
+
       <View style={{ flex: 3 }}>
         <ScrollView >
 
 
           <Surface>
-            {groups ? <>{groups.map((group: any) => {
-              return (<><List.Item 
+            {groups ? <>{groups.map((group: any, index: number) => {
+              return (<View
+                key={index}
+              ><List.Item
+                key={index}
                 title={() => <Title>{group.data.name}</Title>}
                 // description={()=><Chip>{"Members: " + group.data.member.length}</Chip>}
                 onPress={() => props.navigation.navigate('GroupDashboard', { gid: group.id })}
                 left={() => <Image source={{ uri: group.data.photoURL ? group.data.photoURL : anon }} style={{ width: 60, height: 60, borderRadius: 60 / 4 }} />}
                 right={() => (
                   <>
-                    <Chip icon="account-group-outline"  style={{margin:10, backgroundColor:theme.colors.primary}}>{"Members: " + group.data.member.length}</Chip>
+                    <Chip icon="account-group-outline" style={{ margin: 10, backgroundColor: theme.colors.primary }}>{"Members: " + group.data.member.length}</Chip>
                     <IconButton icon='chevron-right' style={{ marginTop: 15 }}></IconButton>
                   </>
                 )}
               >
-              </List.Item>
-                <Divider style={{ height: 2, backgroundColor:'white' }} /></>
+                </List.Item>
+                <Divider style={{ height: 2, backgroundColor: 'white' }} /></View>
               );
             })}</> : null}
           </Surface>
         </ScrollView>
-        
+
       </View>
-      <AddGroup/>
+      <AddGroup />
     </View>
 
   )

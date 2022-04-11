@@ -4,6 +4,7 @@ import useCachedResources from './hooks/useCachedResources';
 import { LogBox } from 'react-native';
 import { DefaultTheme, DarkTheme, Provider as PaperProvider } from 'react-native-paper';
 import Navigator from './navigation/Navigator';
+import { StatusBar } from 'expo-status-bar';
 
 LogBox.ignoreLogs(['Warning: ...']);
 // const theme = {
@@ -40,6 +41,7 @@ export default function App() {
       <PaperProvider theme={theme} >
         <SafeAreaProvider>
           <Navigator />
+          <StatusBar style={'light'} />
         </SafeAreaProvider >
       </PaperProvider>
     );

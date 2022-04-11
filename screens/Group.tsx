@@ -1,16 +1,16 @@
-import { Platform, ScrollView, StyleSheet, View, Image } from 'react-native';
-import { collection, addDoc, serverTimestamp, query, Timestamp, onSnapshot, orderBy, getDoc, getDocs, collectionGroup, where, updateDoc, arrayUnion, doc, limit } from 'firebase/firestore';
+import { Platform, ScrollView, StyleSheet, View, Image , TextInput} from 'react-native';
+import { collection, addDoc, serverTimestamp, query, Timestamp, onSnapshot, orderBy, getDoc, getDocs, collectionGroup, where, updateDoc, arrayUnion, doc, limit, arrayRemove } from 'firebase/firestore';
 import { getAuth, signOut } from "firebase/auth";
 import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { getStorage, ref, uploadBytes } from '@firebase/storage';
 import { getDownloadURL, uploadBytesResumable } from 'firebase/storage';
 import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid';
-import { Button, Input, Text } from 'react-native-elements';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { db } from '../config/firebase';
 import * as ImagePicker from "expo-image-picker";
-import { Appbar, TextInput } from 'react-native-paper';
+import { Appbar, Avatar, Caption, List, Paragraph, Surface,  Title, useTheme, Text, IconButton } from 'react-native-paper';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 const Group = (props: any) => {
     const auth = getAuth();
@@ -22,10 +22,12 @@ const Group = (props: any) => {
     const [sendImage, setSendImage] = useState<any>(null);
     const [uploading, setUploading] = useState(false);
     const admin = props.admin
-
+    const { colors } = useTheme();
+    const anon = require('../assets/anon.png');
+    const [textInputHeight, setTextInputHeight] = useState(1);
+    const height = 100;
 
     useEffect(() => {
-        console.log(user);
         props.navigation.setOptions({
             header: () => (
                 <Appbar.Header>
@@ -37,24 +39,59 @@ const Group = (props: any) => {
                 </Appbar.Header>
             )
         });
-        const q = query(collection(db, 'group', group.id,'messages' ), orderBy('timestamp', 'desc'));
-        const unsubscribe = onSnapshot(q, (snapshot) => setChat(snapshot.docs.map((doc) => ({ ...doc.data() }))));
+        const q = query(collection(db, 'group', group.id, 'messages'), orderBy('timestamp', 'desc'));
+        const unsubscribe = onSnapshot(q, (snapshot) => setChat(snapshot.docs.map((doc) => ({
+            ...({
+                data: doc.data(),
+                id: doc.id
+            })
+        }))));
+
         return unsubscribe;
     }, []);
 
 
-    /*const addMember = async (username: any, gid: any) => {
-        //Bad practice, update to only grab single user from firebase
-        const document = doc(db, 'group', gid);
-        const user = (await getDocs(query(collection(db, 'user'), where('username', "==", username), limit(1)))).docs.map((doc) => doc.data());
-        const uid = user[0].uid;
-        await updateDoc(document, {
-            member: arrayUnion(uid)
-        }).then(() => {
-            console.log("Added Member successfully ");
-            setNewMember("");
-        }).catch((error) => console.log("Error in adding member: " + error.message));
-    }*/
+    const likeChat = async (mid: any) => {
+        const docRef = doc(db, 'group', group.id, 'messages', mid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.data()?.likes.includes(user?.email)) {
+            await updateDoc(docRef, {
+                likes: arrayRemove(user?.email)
+            })
+        }
+        else if (docSnap.data()?.dislikes.includes(user?.email)) {
+            await updateDoc(docRef, {
+                likes: arrayUnion(user?.email),
+                dislikes: arrayRemove(user?.email)
+            })
+        }
+        else {
+            await updateDoc(docRef, {
+                likes: arrayUnion(user?.email)
+            })
+        }
+    }
+    const dislikeChat = async (mid: any) => {
+        const docRef = doc(db, 'group', group.id, 'messages', mid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.data()?.dislikes.includes(user?.email)) {
+            await updateDoc(docRef, {
+                dislikes: arrayRemove(user?.email)
+            })
+        }
+        else if (docSnap.data()?.likes.includes(user?.email)) {
+            await updateDoc(docRef, {
+                dislikes: arrayUnion(user?.email),
+                likes: arrayRemove(user?.email)
+            })
+        }
+        else {
+            await updateDoc(docRef, {
+                dislikes: arrayUnion(user?.email)
+            })
+        }
+    }
+
     const uploadImage = async (uri: any) => {
         if (uri === null) {
             return null;
@@ -89,6 +126,8 @@ const Group = (props: any) => {
             email: user?.email,
             userImg: user?.photoURL,
             gid: group.id,
+            likes: [],
+            dislikes: [],
             image: image ? image : null,
         }).then(() => {
             console.log("Message successfully sent")
@@ -114,102 +153,71 @@ const Group = (props: any) => {
         }
     };
     return (
-        <View style={{flex: 1, backgroundColor: 'white'}}>
-            <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}>
-                <SafeAreaView >
-                    <View style={styles.container}>
-                        {admin ? <View style={styles.inputContainer}>
-                        </View> : null}
-                        <View style={styles.listContainer}>
-                            {chat === undefined ? null : chat.map((doc: any) => { // Group Chat
-                                return (
-                                    <View style={styles.chatContainer}>
-                                        <View style={styles.list} key={doc.id}>
-                                            
-                                                <View style={{width:"98%", flexDirection: 'row' }}>
-                                                    <View style={{backgroundColor:"black", width: 25, height:25, borderRadius:25/2, alignItems:'center',justifyContent:'center'}}>
-                                                        {doc?.userImg? <Image source={{uri:doc.userImg}} style={{width: 25, height:25, borderRadius:25/2}} /> : null}
-                                                    </View>
-                                                    <View style={{alignItems:'center', marginLeft: 5, marginBottom: 5, justifyContent:'center'}}>
-                                                        <Text>{doc?.username}</Text>
-                                                    </View>
-                                                </View>  
-                                                
-                                                
-                                                <View style={{ width:'98%', alignItems: 'flex-end', marginBottom: 5, flexDirection: 'row', flex:1  , }}>
-                                                    {/* <Text>{"\n"}</Text> */}
-                                                    <Text style={{fontStyle: 'italic', fontSize: 9, marginLeft: 5 }}>
-                                                        {(doc?.timestamp as Timestamp)?.toDate()?.toDateString()}
-                                                    </Text>
-                                                    <Text style={{fontStyle: 'italic', fontSize: 9, marginLeft: 5 }}>
-                                                        {(doc?.timestamp as Timestamp)?.toDate()?.toLocaleTimeString('en-US')}
-                                                    </Text>
+        <View style={{ flex: 1, }}>
 
-                                                </View>
-                                            <Text style={{ fontSize: 10}}>{"\n"}</Text>
-                                            <View style={{ alignItems: 'center', marginBottom: 4, flexDirection: 'row'}}>
-                                        
-                                        
-                                                        <Text style={{ flex: 1, flexShrink: 1, flexWrap: 'wrap' }}>
-                                                            {doc?.text}
-                                                        </Text>
-                                        
-                                        
-                                                <View style={styles.container}>{doc?.image ? <Image source={{ uri: doc.image }} style={{ width: 100, height: 100,flex:1, resizeMode: "contain", }} /> : null}</View>
-                                            </View>
-                                        </View>
+            <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', backgroundColor: colors.surface }}>
+                <Surface >
+                    {chat === undefined ? null : chat.map((doc: any, index: number) => (
+                        <List.Item
+                        key={index}
+                            title={() => (
+                                <>
+                                    <Text style={{ color: colors.primary }}>{doc.data.username}</Text>
+                                    <Caption>{(doc?.data.timestamp as Timestamp)?.toDate()?.toDateString() + "  " + (doc?.data.timestamp as Timestamp)?.toDate()?.toLocaleTimeString('en-US')}</Caption>
+                                </>
+                            )}
+                            
+                            left={() => <Avatar.Image source={{ uri: doc.data.userImg }} size={25} />}
+                            description={() => (
+                                <View style={{ flex: 1 }}>
+                                    <Paragraph style={{ flex: 1 }}>{doc.data.text}</Paragraph>
+                                    {doc?.data.image ? <View><Image source={{ uri: doc.data.image }} style={{ width: '100%', height: 250, resizeMode: "contain" }} /></View> : null}
+                                    <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                                        <Text style={{ margin: 15, color: 'green' }}>{doc.data.likes.length}</Text>
+                                        {doc.data.likes.includes(user?.email) ? <IconButton style={{ marginLeft: -15 }} icon='thumb-up' size={20} color='green' onPress={() => likeChat(doc.id)} /> :
+                                            <IconButton style={{ marginLeft: -15 }} icon='thumb-up-outline' size={20} color='green' onPress={() => likeChat(doc.id)} />}
+                                        <Text style={{ margin: 15, color: 'red' }}>{doc.data.dislikes.length}</Text>
+                                        {doc.data.dislikes.includes(user?.email) ? <IconButton style={{ marginLeft: -15 }} icon='thumb-down' size={20} color='red' onPress={() => dislikeChat(doc.id)} /> :
+                                            <IconButton style={{ marginLeft: -15 }} icon='thumb-down-outline' size={20} color='red' onPress={() => dislikeChat(doc.id)} />}
+
                                     </View>
-                                );
-                            })
-                        }
-                        </View>
-                    </View>
-                </SafeAreaView>
+                                </View>
+                            )
+                            }
+                        />
+                    ))
+
+                    }
+
+                </Surface>
             </ScrollView>
-                <Appbar style={{ flexWrap: "wrap", minHeight:45, }}>
-                {sendImage ? <Image source={{ uri: sendImage }} style={{ width: 50, height: 50, resizeMode: "contain", marginLeft:20 }} /> : null}
-                    <Appbar.Action icon='image' onPress={() => selectPicture()}/>
-                    <TextInput style={{flex:1, height:38}} autoComplete={false} onChangeText={(text) => setMessage(text)} onSubmitEditing={() => sendMessage()} value={message} />
-                    <Appbar.Action icon = 'send' onPress={() => sendMessage()}/>
-                </Appbar>
-            {/* <View style={{backgroundColor: 'rgba(32, 68, 224, 1)'}}>
-                <View style={styles.messageInputContainer}>
-                    {sendImage ? <Image source={{ uri: sendImage }} style={{ width: 50, height: 50, marginRight: 15, resizeMode: "contain", }} /> : null}
-                    <Button // Add Image Button
-                        onPress={() => selectPicture()}
-                        icon={{
-                            name: 'image',
-                            type: 'font-awesome',
-                            size: 15,
-                            color: 'rgba(32, 68, 224, 1)', // Changes send icon color
-                        }}
-                        title=""
-                        buttonStyle={{ backgroundColor: 'white' , height: 40, width: 40, margin: 0, borderRadius: 50}}
-                    />
-                    <View>
-                        <Input
-                            placeholder='Send to group..'
-                            value={message}
-                            onChangeText={(text) => setMessage(text)}
-                            inputStyle={{backgroundColor: 'white', marginTop: 10, borderRadius: 15, paddingHorizontal: 10, width: Platform.OS === 'ios' ? "70%" : "80%"}}
-                        />
-                    </View>
-                    <Button
-                            onPress={() => sendMessage()}
-                            icon={{
-                                name: 'paper-plane',
-                                type: 'font-awesome',
-                                size: 15,
-                                color: 'rgba(32, 68, 224, 1)', // Changes send icon color
-                            }}
-                            title=""
-                            buttonStyle={{ backgroundColor: 'white' , height: 40, width: 40, margin: 0, borderRadius: 50}}
-                        />
-                </View>
 
-
-            </View> */}
+            <Surface style={{ backgroundColor: colors.primary, padding: 10, flexDirection:'row', justifyContent:'center', alignItems:'center' }}>
                 
+                
+                    {sendImage ? <TouchableOpacity onPress={() => setSendImage(null)} style={{backgroundColor:'transparent',marginLeft: 1, flex:2 }}><Image source={{ uri: sendImage }} style={{ width:100,height: 100, resizeMode: "contain", marginLeft: 1, flex:2 }} /></TouchableOpacity> : null}
+
+                
+
+                <View style={{flex:1, justifyContent:'center', alignItems:'center'}}>
+                    <IconButton icon='image' onPress={() => selectPicture()} />
+                </View>
+                <View style={{flex:6}}><TextInput
+                    style={{ maxWidth:'100%', padding:5,height: Platform.OS === 'web' ? textInputHeight: (textInputHeight < 30 ? 30:textInputHeight+10) , flexGrow: 1,backgroundColor:'white', marginTop:15, marginBottom:15, borderRadius:5, color:colors.surface}}
+                    onChangeText={(text) => setMessage(text)}
+                    onSubmitEditing={() => sendMessage()}
+                    value={message}
+                    placeholder='Send Message...'
+                    multiline
+                    onContentSizeChange={(e)=>{
+                        setTextInputHeight(e.nativeEvent.contentSize.height)
+                    }}
+                /></View>
+                
+                <View style={{flex:1, justifyContent:'center', alignItems:'center'}}><IconButton icon='send' onPress={() => sendMessage()} /></View>
+            </Surface>
+    
+
         </View>
     )
 }
@@ -217,8 +225,7 @@ const styles = StyleSheet.create({
     container: {
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: 'white',
-        
+
     },
     chatContainer: {
         width: "98%",

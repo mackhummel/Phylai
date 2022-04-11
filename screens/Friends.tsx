@@ -43,7 +43,6 @@ const Friends = (props: any) => {
 
 
     const sendFriendRequest = async () => {
-        console.log(friends)
         if (!friends.filter((doc: any) => doc.email === friendEmail.toLowerCase())) {
             console.log('Already friends');
             return;
@@ -69,9 +68,9 @@ const Friends = (props: any) => {
         <View style={{ flex: 1 }} >
             <List.AccordionGroup>
                 <List.Accordion title='Friend Requests' left={() => <>{requestsProfiles?.length > 0 ? <Badge style={{ marginBottom: 10 }}>{requests.length}</Badge> : null}</>} id='1'>
-                    {requestsProfiles ? requestsProfiles.map((profile: any) => {
+                    {requestsProfiles ? requestsProfiles.map((profile: any, index:number) => {
                         return (
-                            <Profile profile={profile} request={true} />
+                            <Profile key={index} profile={profile} request={true} />
 
                         )
                     }
@@ -105,7 +104,6 @@ const Friends = (props: any) => {
                             value={friendEmail}
                             onChangeText={(text) => setFriendEmail(text)}
                             onSubmitEditing={() => sendFriendRequest()}
-                            multiline={true}
                             autoComplete={false}
                             theme={{ colors: { placeholder: 'white' } }}
                         /></View>
@@ -116,22 +114,7 @@ const Friends = (props: any) => {
 
                 </Modal>
             </Portal>
-            {/* <View style={styles.container}><View style={styles.inputContainer}>
-                    <TextInput
-                        autoComplete='never'
-                        placeholder='Email'
-                        onChangeText={(text) => setFriendEmail(text)}
-                        textContentType='emailAddress'
-                        value={friendEmail}
-                        onSubmitEditing={sendFriendRequest}
-                    ></TextInput>
-                </View>
-                <Button
-                    onPress={sendFriendRequest}
-                    mode="contained"
-                >Send Request</Button>
-               
-                </View> */}
+           
 
         </View>
     )
