@@ -4,12 +4,12 @@
  * https://reactnavigation.org/docs/configuring-links
  */
 
- import { LinkingOptions } from '@react-navigation/native';
- import * as Linking from 'expo-linking';
- 
- import { RootStackParamList } from '../types';
- 
- const linking: LinkingOptions<any> = {
+import { LinkingOptions } from '@react-navigation/native';
+import * as Linking from 'expo-linking';
+
+import { RootStackParamList } from '../types';
+
+const linking: LinkingOptions<any> = {
   prefixes: [Linking.createURL('/'), 'http://localhost:19006'],
   config: {
     screens: {
@@ -31,10 +31,35 @@
             },
             screens: {
               Group: 'GroupHome',
-              GroupCalendar: 'GroupCalendar',
               GroupMembers: 'GroupMembers',
+              GroupCalendar: 'GroupCalendar',
+              EventDashboard: {
+                screens: {
+                  Event: {
+                    path: 'Event/:eid',
+                    parse: {
+                      eid: (eid: any) => `${eid}`,
+                    },
+                    stringify: {
+                      eid: (eid: any) => eid,
+                    },
+                  },
+                }
+              }
             },
-          }
+          },
+          EventDashboard: {
+            path: 'Event/:eid',
+                parse: {
+                  eid: (eid: any) => `${eid}`,
+                },
+                stringify: {
+                  eid: (eid: any) => eid,
+                },
+            screens: {
+              Event: '',
+            }
+          },
         },
       },
       Login: 'Login',
@@ -42,6 +67,5 @@
     },
   },
 };
- 
- export default linking;
- 
+
+export default linking;

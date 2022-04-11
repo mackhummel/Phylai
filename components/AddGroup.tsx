@@ -86,6 +86,8 @@ const AddGroup = (props: any) => {
 
         }).then(async (res) => {
             setModalVisible(false);
+            setGroupName('');
+            setProfPic(null);
         }).catch((error) => console.log("Group Create failed: " + error.message));
     }
     return (

@@ -80,11 +80,8 @@ const Home = (props: any) => {
 
   return (
     <View key={1} style={{ flex: 1 }}>
-
       <View style={{ flex: 3 }}>
         <ScrollView >
-
-
           <Surface>
             {groups ? <>{groups.map((group: any, index: number) => {
               return (<View
